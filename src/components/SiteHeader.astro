@@ -2,7 +2,7 @@
 import Button from './Button.astro';
 import menuIcon from '../assets/hero/menu-button.svg';
 
-const navItems = ['Platform', 'Advisory', 'Pricing', 'Events', 'Discover'];
+const navItems = ['Future Snoops', 'Platform', 'Advisory', 'Pricing', 'Events', 'Discover'];
 ---
 
 <header class="header" data-site-header>
@@ -93,6 +93,12 @@ const navItems = ['Platform', 'Advisory', 'Pricing', 'Events', 'Discover'];
     letter-spacing: -0.02em;
   }
 
+  /* The first link sits centred in a 178px column in the desktop frame. */
+  .nav li:first-child {
+    width: calc(178 * var(--px));
+    text-align: center;
+  }
+
   .actions {
     display: flex;
     align-items: center;
@@ -137,6 +143,11 @@ const navItems = ['Platform', 'Advisory', 'Pricing', 'Events', 'Discover'];
       align-items: flex-start;
       gap: 18px;
       font-size: 20px;
+    }
+
+    .nav li:first-child {
+      width: auto;
+      text-align: left;
     }
 
     .actions {
