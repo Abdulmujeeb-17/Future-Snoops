@@ -13,12 +13,11 @@
   --font-display: 'Anton', Impact, 'Arial Narrow', sans-serif;
   --font-body: 'Sora Variable', 'Sora', system-ui, sans-serif;
 
-  /* Layout: 40px gutters on the 1600 frame, 20px on the 390 frame */
-  --page-gutter: clamp(1.25rem, 2.5vw, 2.5rem);
-  --content-max: 120rem;
+  /* One Figma pixel of the 1600x930 frame, scaled so the frame fits the viewport. */
+  --px: min(calc(100vw / 1600), calc(100svh / 930));
 
-  /* One Figma pixel of the 1600 desktop frame. Stops growing above 1600. */
-  --px: min(1px, calc(100vw / 1600));
+  /* Layout: 40px gutters on the 1600 frame, 20px on the 390 frame */
+  --page-gutter: max(1.25rem, 2.5vw);
 
   /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);

@@ -60,7 +60,20 @@ button {
 
 .page {
   width: 100%;
-  max-width: var(--content-max);
-  margin-inline: auto;
   padding-inline: var(--page-gutter);
+}
+
+/* From tablet up, the header, hero and intro together fill the viewport height. */
+@media (min-width: 768px) {
+  .page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+  }
+
+  .page > main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
 }

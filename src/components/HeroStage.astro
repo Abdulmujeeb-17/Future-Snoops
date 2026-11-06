@@ -6,22 +6,25 @@ import portraitSoft from '../assets/hero/portrait-soft.png';
 
 type Rule = [orientation: 'h' | 'v', x: number, y: number, length: number, thickness: number, strong?: boolean];
 
+// Approximate bottom of the "p" in the mobile frame, for the shapes that meet the p line.
+const SNOOPS_P_BOTTOM_MOBILE = 268;
+
 // Rule geometry in Figma pixels of each frame (desktop 1520x510, mobile 350x320).
 const desktopRules: Rule[] = [
-  ['v', 234, 4, 506, 2], ['v', 234, 4, 257, 2], ['v', 476, 4, 257, 2], ['v', 476, 2, 506, 2],
-  ['v', 540, 2, 506, 2], ['v', 980, 2, 506, 2], ['v', 1056, 2, 506, 2], ['v', 1234, 2, 506, 2],
-  ['v', 1414, 2, 506, 2],
-  ['h', 0, 261, 1520, 1], ['h', 0, 451, 1520, 1], ['h', 476, 71, 580, 1], ['h', 476, 261, 580, 1],
+  ['v', 234, -745, 2000, 2], ['v', 234, -745, 1006, 2], ['v', 476, -745, 1006, 2], ['v', 476, -745, 2000, 2],
+  ['v', 540, -745, 2000, 2], ['v', 980, -745, 2000, 2], ['v', 1056, -745, 2000, 2], ['v', 1234, -745, 2000, 2],
+  ['v', 1414, -745, 2000, 2],
+  ['h', 0, 261, 1520, 1], ['h', 476, 71, 580, 1], ['h', 476, 261, 580, 1],
   ['h', 0, 71, 234, 1, true], ['h', 234, 71, 254, 1, true], ['h', 234, 261, 242, 2, true],
   ['h', 1056, 71, 178, 2, true], ['h', 1056, 261, 178, 2, true],
   ['v', 1056, 71, 190, 2, true], ['v', 1234, 71, 190, 2, true],
 ];
 
 const mobileRules: Rule[] = [
-  ['h', 0, 44, 350, 1], ['h', 0, 148, 350, 1], ['h', 0, 276, 350, 1],
+  ['h', 0, 44, 350, 1], ['h', 0, 148, 350, 1],
   ['v', 40, 0, 320, 1], ['v', 104, 0, 320, 1], ['v', 330, 0, 320, 1],
-  ['v', 189, 149, 171, 1], ['v', 209, 0, 148, 1], ['v', 209, 276, 44, 1],
-  ['v', 258, 0, 148, 1], ['v', 258, 276, 44, 1],
+  ['v', 189, 149, 171, 1], ['v', 209, 0, 148, 1], ['v', 209, SNOOPS_P_BOTTOM_MOBILE, 52, 1],
+  ['v', 258, 0, 148, 1], ['v', 258, SNOOPS_P_BOTTOM_MOBILE, 52, 1],
   ['h', 104, 44, 106, 1, true], ['h', 104, 148, 105, 1, true],
   ['v', 209, 45, 104, 1, true], ['v', 104, 44, 104, 1, true],
 ];
@@ -40,15 +43,15 @@ const frame = (left: number, top: number, right: number, bottom: number) => [
 ];
 
 const softLeft = toPolygon(
-  [...frame(0, 0, 540, 510), ...frame(234, 71, 476, 261), [0, 0]], 1520, 510,
+  [...frame(0, -600, 540, 1200), ...frame(234, 71, 476, 261), [0, -600]], 1520, 510,
 );
 const softRight = toPolygon(
-  [...frame(984, -2, 1520, 508), ...frame(1056, 71, 1234, 261), [984, -2]], 1520, 510,
+  [...frame(984, -600, 1520, 1200), ...frame(1056, 71, 1234, 261), [984, -600]], 1520, 510,
 );
 const softMobile = toPolygon(
   [
     ...frame(0, 0, 350, 320),
-    [105, 44], [210, 44], [210, 148], [331, 148], [331, 276], [189, 276], [189, 148], [105, 148], [105, 44],
+    [105, 44], [210, 44], [210, 148], [331, 148], [331, SNOOPS_P_BOTTOM_MOBILE], [189, SNOOPS_P_BOTTOM_MOBILE], [189, 148], [105, 148], [105, 44],
     [0, 0],
   ],
   350, 320,
@@ -78,14 +81,15 @@ const portraitSizes = '(max-width: 767px) 110vw, 50vw';
 
       <div class="rules rules--desktop">
         {desktopRules.map((rule, index) => (
-          <span class:list={['rule', `rule--${rule[0]}`, { 'rule--strong': rule[5] }]} style={ruleStyle(rule, index)} />
+          <span class:list={['rule', `rule--${rule[0]}`, { 'rule--strong': rule[5], 'rule--full': rule[3] === 2000 }]} style={ruleStyle(rule, index)} />
         ))}
       </div>
       <div class="rules rules--mobile">
         {mobileRules.map((rule, index) => (
-          <span class:list={['rule', `rule--${rule[0]}`, { 'rule--strong': rule[5] }]} style={ruleStyle(rule, index)} />
+          <span class:list={['rule', `rule--${rule[0]}`, { 'rule--strong': rule[5], 'rule--full': rule[3] === 2000 }]} style={ruleStyle(rule, index)} />
         ))}
       </div>
+      <span class="p-line title__line--snoops"><span class="p-line__rule"></span></span>
     </div>
 
     <h1 class="title">
@@ -96,19 +100,31 @@ const portraitSizes = '(max-width: 767px) 110vw, 50vw';
 </div>
 
 <style>
+  /*
+    Takes whatever height the viewport leaves. The floor keeps the whole title visible
+    and the ceiling stops before the artwork runs out.
+  */
   .stage {
+    --stage-width: calc(100vw - 2 * var(--page-gutter));
     position: relative;
+    flex: 1 1 0;
     container-type: inline-size;
-    aspect-ratio: 1520 / 510;
+    min-height: calc(var(--stage-width) * 380 / 1520);
+    max-height: calc(var(--stage-width) * 1020 / 1520);
     overflow: clip;
     background: #c43a00;
   }
 
-  /* --u is one Figma pixel of the active frame, so the whole composition scales together. */
+  /*
+    --u is one Figma pixel of the active frame, so the whole composition scales together.
+    The frame stays centred, and extra stage height reveals more of the artwork around it.
+  */
   .canvas {
     --u: calc(100cqw / 1520);
     position: absolute;
-    inset: 0;
+    inset-inline: 0;
+    top: calc(50% - 255 * var(--u));
+    height: calc(510 * var(--u));
   }
 
   .art,
@@ -217,6 +233,45 @@ const portraitSizes = '(max-width: 767px) 110vw, 50vw';
     transform-origin: center top;
   }
 
+  .rule--full {
+    transform-origin: center;
+  }
+
+  /*
+    The grid line under "Snoops". This empty box copies the word's font, size and position,
+    so the rule hangs from the same text baseline and lands on the bottom of the p at any size.
+  */
+  .p-line {
+    position: absolute;
+    inset-inline: 0;
+    top: calc(var(--top) * var(--u));
+    font-family: var(--font-display);
+    font-size: calc(var(--size) * var(--u));
+    line-height: 1;
+  }
+
+  .p-line__rule {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    height: 0;
+  }
+
+  .p-line__rule::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    /*
+      Depth of the Anton p below its baseline, in whole pixels. Text and boxes snap to the
+      pixel grid separately, and a whole-pixel offset makes them snap together. The tiny
+      bias stops values just above .5 rounding up and leaving a gap.
+    */
+    top: round(calc(0.1221em - 0.05px), 1px);
+    height: max(1px, calc(1 * var(--u)));
+    background: rgb(255 255 255 / 0.2);
+    transform-origin: left center;
+  }
+
   .title {
     position: absolute;
     inset: 0;
@@ -250,11 +305,16 @@ const portraitSizes = '(max-width: 767px) 110vw, 50vw';
   /* Mobile frame: its own 350x320 composition with a single figure. */
   @media (max-width: 767px) {
     .stage {
+      flex: none;
+      min-height: 0;
+      max-height: none;
       aspect-ratio: 350 / 320;
     }
 
     .canvas {
       --u: calc(100cqw / 350);
+      inset: 0;
+      height: auto;
     }
 
     .art :global(.backdrop-glow),
@@ -297,8 +357,13 @@ const portraitSizes = '(max-width: 767px) 110vw, 50vw';
       animation-delay: calc(var(--i) * 30ms);
     }
 
-    .rule--h {
+    .rule--h,
+    .p-line__rule::after {
       animation-name: draw-across;
+    }
+
+    .p-line__rule::after {
+      animation: draw-across 1100ms var(--ease-out) 300ms both;
     }
 
     .rule--v {
