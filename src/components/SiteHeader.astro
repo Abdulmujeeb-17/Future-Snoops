@@ -1,0 +1,152 @@
+---
+import Button from './Button.astro';
+import menuIcon from '../assets/hero/menu-button.svg';
+
+const navItems = ['Platform', 'Advisory', 'Pricing', 'Events', 'Discover'];
+---
+
+<header class="header" data-site-header>
+  <a class="brand">Future Snoops</a>
+
+  <button
+    class="toggle"
+    type="button"
+    aria-label="Menu"
+    aria-expanded="false"
+    aria-controls="site-menu"
+    data-menu-toggle
+  >
+    <img src={menuIcon.src} width="54" height="48" alt="" />
+  </button>
+
+  <div class="menu" id="site-menu">
+    <nav aria-label="Primary">
+      <ul class="nav">
+        {navItems.map((item) => <li><a>{item}</a></li>)}
+      </ul>
+    </nav>
+    <div class="actions">
+      <a class="login">Login</a>
+      <Button>Request a Demo</Button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  const toggle = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+
+  if (header && toggle) {
+    const setOpen = (open: boolean) => {
+      header.toggleAttribute('data-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    };
+
+    toggle.addEventListener('click', () => setOpen(!header.hasAttribute('data-open')));
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && header.hasAttribute('data-open')) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+
+    window.matchMedia('(min-width: 1024px)').addEventListener('change', () => setOpen(false));
+  }
+</script>
+
+<style>
+  .header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: calc(39 * var(--px)) calc(41 * var(--px));
+  }
+
+  .brand {
+    font-family: var(--font-display);
+    /* Anton at this size fills the 178px logo width from the desktop frame. */
+    font-size: max(1.75rem, calc(31.2 * var(--px)));
+    white-space: nowrap;
+  }
+
+  .toggle {
+    display: none;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .menu {
+    display: contents;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: calc(32 * var(--px));
+    font-size: max(0.875rem, calc(18 * var(--px)));
+    line-height: 1.11;
+    letter-spacing: -0.02em;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: calc(20 * var(--px));
+  }
+
+  .login {
+    font-size: max(0.9375rem, calc(20 * var(--px)));
+    letter-spacing: -0.02em;
+  }
+
+  @media (max-width: 1023px) {
+    .header {
+      padding-block: 24px 32px;
+    }
+
+    .brand {
+      font-size: 28px;
+    }
+
+    .toggle {
+      display: block;
+    }
+
+    .menu {
+      position: absolute;
+      inset-inline: 0;
+      top: calc(100% - 20px);
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      padding-block: 24px;
+      background: var(--color-paper);
+    }
+
+    .header[data-open] .menu {
+      display: flex;
+    }
+
+    .nav {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 18px;
+      font-size: 20px;
+    }
+
+    .actions {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 18px;
+    }
+
+    .login {
+      font-size: 20px;
+    }
+  }
+</style>

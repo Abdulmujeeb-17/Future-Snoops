@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import HeroStage from '../components/HeroStage.astro';
+import HeroIntro from '../components/HeroIntro.astro';
+---
+
+<BaseLayout
+  title="Future Snoops"
+  description="A conversational, AI-powered intelligence platform built for creators"
+>
+  <div class="page">
+    <SiteHeader />
+    <main>
+      <HeroStage />
+      <HeroIntro />
+    </main>
+  </div>
+</BaseLayout>

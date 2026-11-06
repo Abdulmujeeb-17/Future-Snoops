@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+*.log
+.DS_Store
+
+# Local duplicate of src/assets/hero/color-story.jpg
+The Art of Silent Power.jpg

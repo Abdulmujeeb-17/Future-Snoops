@@ -1,0 +1,34 @@
+---
+// Renders a placeholder link until a destination exists: pass `href` to activate it.
+interface Props {
+  href?: string;
+  class?: string;
+}
+
+const { href, class: className } = Astro.props;
+---
+
+<a href={href} class:list={['button', className]}><slot /></a>
+
+<style>
+  .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: max(2.75rem, calc(58 * var(--px)));
+    padding-inline: max(0.875rem, calc(20 * var(--px)));
+    background: var(--color-signal);
+    color: var(--color-on-signal);
+    font-size: max(0.9375rem, calc(20 * var(--px)));
+    line-height: 1;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 1023px) {
+    .button {
+      min-height: 58px;
+      font-size: 20px;
+    }
+  }
+</style>

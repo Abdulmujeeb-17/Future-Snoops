@@ -1,0 +1,25 @@
+/*
+  Design tokens taken from the Figma file (frames 13:83 desktop, 13:39 mobile).
+  The file defines no Figma variables, so these values come from the layers.
+*/
+:root {
+  /* Colour */
+  --color-paper: #ffe8df;
+  --color-ink: #000000;
+  --color-signal: #e94100;
+  --color-on-signal: #ffffff;
+
+  /* Type families */
+  --font-display: 'Anton', Impact, 'Arial Narrow', sans-serif;
+  --font-body: 'Sora Variable', 'Sora', system-ui, sans-serif;
+
+  /* Layout: 40px gutters on the 1600 frame, 20px on the 390 frame */
+  --page-gutter: clamp(1.25rem, 2.5vw, 2.5rem);
+  --content-max: 120rem;
+
+  /* One Figma pixel of the 1600 desktop frame. Stops growing above 1600. */
+  --px: min(1px, calc(100vw / 1600));
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}

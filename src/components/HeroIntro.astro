@@ -1,0 +1,188 @@
+---
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import colorStory from '../assets/hero/color-story.jpg';
+---
+
+<section class="intro" aria-labelledby="intro-title">
+  <div class="lede">
+    <h2 class="lede__title" id="intro-title">The New Future Snoops Experience</h2>
+    <p class="lede__body">A conversational, AI-powered intelligence platform built for creators</p>
+  </div>
+
+  <div class="trial">
+    <div class="trial__media">
+      <Image
+        src={colorStory}
+        alt="Hand with a gold ring and bracelets resting against an orange blazer"
+        widths={[400, 736]}
+        sizes="(max-width: 599px) 100vw, (max-width: 1023px) 50vw, 25vw"
+        format="webp"
+        loading="lazy"
+      />
+    </div>
+    <div class="trial__copy">
+      <div class="trial__text">
+        <p class="trial__offer">Your 7-days free color trial</p>
+        <p class="trial__title">A new way to experience color</p>
+      </div>
+      <Button>Start Now</Button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .intro {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: calc(40 * var(--px));
+    padding-block: calc(48 * var(--px)) calc(42 * var(--px));
+  }
+
+  .lede {
+    display: flex;
+    flex-direction: column;
+    gap: calc(20 * var(--px));
+  }
+
+  .lede__title {
+    font-family: var(--font-display);
+    /* Anton at this size fills the 684px heading width from the desktop frame. */
+    font-size: calc(49.3 * var(--px));
+    line-height: calc(76 * var(--px));
+    white-space: nowrap;
+  }
+
+  .lede__body {
+    max-width: 21.4em;
+    font-size: calc(32 * var(--px));
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+  }
+
+  .trial {
+    display: flex;
+    flex-shrink: 0;
+    gap: calc(15 * var(--px));
+  }
+
+  .trial__media {
+    position: relative;
+    width: calc(331 * var(--px));
+    min-height: calc(192 * var(--px));
+  }
+
+  .trial__media :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .trial__copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    width: max(11.5rem, calc(232 * var(--px)));
+  }
+
+  .trial__text {
+    display: flex;
+    flex-direction: column;
+    gap: calc(12 * var(--px));
+  }
+
+  .trial__offer {
+    font-size: max(0.8125rem, calc(18 * var(--px)));
+    line-height: 1.22;
+    letter-spacing: -0.5px;
+  }
+
+  .trial__title {
+    font-size: max(1.125rem, calc(24 * var(--px)));
+    font-weight: 600;
+    line-height: 1.167;
+    letter-spacing: -0.0625em;
+  }
+
+  /* Tablet: the two groups stack and the trial becomes a full-width row. */
+  @media (max-width: 1023px) {
+    .intro {
+      flex-direction: column;
+      gap: 32px;
+      padding-block: 32px;
+    }
+
+    .lede {
+      gap: 10px;
+    }
+
+    .lede__title {
+      font-size: clamp(2.5rem, 5.7vw, 3.5rem);
+      line-height: 1.15;
+      white-space: normal;
+    }
+
+    .lede__body {
+      max-width: 34em;
+      font-size: clamp(1.125rem, 2.8vw, 1.75rem);
+      line-height: 1.334;
+    }
+
+    .trial {
+      gap: 20px;
+    }
+
+    .trial__media {
+      flex: 1.25;
+      width: auto;
+      aspect-ratio: 350 / 231;
+      min-height: 0;
+    }
+
+    .trial__copy {
+      flex: 1;
+      width: auto;
+      gap: 16px;
+    }
+
+    .trial__text {
+      gap: 6px;
+    }
+
+    .trial__offer {
+      font-size: 16px;
+      line-height: 22px;
+    }
+
+    .trial__title {
+      font-size: clamp(1.75rem, 3.8vw, 2.25rem);
+      line-height: 1.143;
+      letter-spacing: -2px;
+    }
+  }
+
+  /* Mobile frame: everything in a single column. */
+  @media (max-width: 599px) {
+    .lede__title {
+      font-size: clamp(2rem, 10.26vw, 2.5rem);
+    }
+
+    .trial {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .trial__media {
+      flex: none;
+      width: 100%;
+    }
+
+    .trial__copy {
+      flex: none;
+    }
+  }
+</style>

@@ -1,0 +1,339 @@
+---
+import { Image } from 'astro:assets';
+import backdrop from '../assets/hero/backdrop.png';
+import portrait from '../assets/hero/portrait.png';
+import portraitSoft from '../assets/hero/portrait-soft.png';
+
+type Rule = [orientation: 'h' | 'v', x: number, y: number, length: number, thickness: number, strong?: boolean];
+
+// Rule geometry in Figma pixels of each frame (desktop 1520x510, mobile 350x320).
+const desktopRules: Rule[] = [
+  ['v', 234, 4, 506, 2], ['v', 234, 4, 257, 2], ['v', 476, 4, 257, 2], ['v', 476, 2, 506, 2],
+  ['v', 540, 2, 506, 2], ['v', 980, 2, 506, 2], ['v', 1056, 2, 506, 2], ['v', 1234, 2, 506, 2],
+  ['v', 1414, 2, 506, 2],
+  ['h', 0, 261, 1520, 1], ['h', 0, 451, 1520, 1], ['h', 476, 71, 580, 1], ['h', 476, 261, 580, 1],
+  ['h', 0, 71, 234, 1, true], ['h', 234, 71, 254, 1, true], ['h', 234, 261, 242, 2, true],
+  ['h', 1056, 71, 178, 2, true], ['h', 1056, 261, 178, 2, true],
+  ['v', 1056, 71, 190, 2, true], ['v', 1234, 71, 190, 2, true],
+];
+
+const mobileRules: Rule[] = [
+  ['h', 0, 44, 350, 1], ['h', 0, 148, 350, 1], ['h', 0, 276, 350, 1],
+  ['v', 40, 0, 320, 1], ['v', 104, 0, 320, 1], ['v', 330, 0, 320, 1],
+  ['v', 189, 149, 171, 1], ['v', 209, 0, 148, 1], ['v', 209, 276, 44, 1],
+  ['v', 258, 0, 148, 1], ['v', 258, 276, 44, 1],
+  ['h', 104, 44, 106, 1, true], ['h', 104, 148, 105, 1, true],
+  ['v', 209, 45, 104, 1, true], ['v', 104, 44, 104, 1, true],
+];
+
+const ruleStyle = ([, x, y, length, thickness]: Rule, index: number) =>
+  `--x:${x};--y:${y};--l:${length};--t:${thickness};--i:${index}`;
+
+// The blur covers each area except its "window", where the sharp layer shows through.
+const toPolygon = (points: number[][], width: number, height: number) =>
+  `clip-path:polygon(evenodd,${points
+    .map(([x, y]) => `${(x / width) * 100}% ${(y / height) * 100}%`)
+    .join(',')})`;
+
+const frame = (left: number, top: number, right: number, bottom: number) => [
+  [left, top], [right, top], [right, bottom], [left, bottom], [left, top],
+];
+
+const softLeft = toPolygon(
+  [...frame(0, 0, 540, 510), ...frame(234, 71, 476, 261), [0, 0]], 1520, 510,
+);
+const softRight = toPolygon(
+  [...frame(984, -2, 1520, 508), ...frame(1056, 71, 1234, 261), [984, -2]], 1520, 510,
+);
+const softMobile = toPolygon(
+  [
+    ...frame(0, 0, 350, 320),
+    [105, 44], [210, 44], [210, 148], [331, 148], [331, 276], [189, 276], [189, 148], [105, 148], [105, 44],
+    [0, 0],
+  ],
+  350, 320,
+);
+
+const portraitSizes = '(max-width: 767px) 110vw, 50vw';
+---
+
+<div class="stage">
+  <div class="canvas">
+    <div class="art" aria-hidden="true">
+      <Image class="backdrop" src={backdrop} alt="" widths={[1000, 1800, 2600]} sizes="110vw" format="webp" loading="eager" />
+      <Image class="backdrop-glow" src={backdrop} alt="" width={800} format="webp" loading="lazy" />
+
+      <Image class="figure figure--left" src={portrait} alt="" widths={[800, 1200, 1472]} sizes={portraitSizes} format="webp" loading="eager" />
+      <Image class="figure figure--right" src={portrait} alt="" widths={[800, 1200, 1472]} sizes="50vw" format="webp" loading="lazy" />
+
+      <div class="soft soft--desktop" style={softLeft}>
+        <Image class="figure figure--soft-left" src={portraitSoft} alt="" widths={[800, 1400]} sizes="50vw" format="webp" loading="lazy" />
+      </div>
+      <div class="soft soft--desktop" style={softRight}>
+        <Image class="figure figure--soft-right" src={portraitSoft} alt="" widths={[800, 1400]} sizes="50vw" format="webp" loading="lazy" />
+      </div>
+      <div class="soft soft--mobile" style={softMobile}>
+        <Image class="figure figure--soft-mobile" src={portrait} alt="" widths={[800, 1200]} sizes="110vw" format="webp" loading="lazy" />
+      </div>
+
+      <div class="rules rules--desktop">
+        {desktopRules.map((rule, index) => (
+          <span class:list={['rule', `rule--${rule[0]}`, { 'rule--strong': rule[5] }]} style={ruleStyle(rule, index)} />
+        ))}
+      </div>
+      <div class="rules rules--mobile">
+        {mobileRules.map((rule, index) => (
+          <span class:list={['rule', `rule--${rule[0]}`, { 'rule--strong': rule[5] }]} style={ruleStyle(rule, index)} />
+        ))}
+      </div>
+    </div>
+
+    <h1 class="title">
+      <span class="title__line title__line--future">Future</span>
+      <span class="title__line title__line--snoops">Snoops</span>
+    </h1>
+  </div>
+</div>
+
+<style>
+  .stage {
+    position: relative;
+    container-type: inline-size;
+    aspect-ratio: 1520 / 510;
+    overflow: clip;
+    background: #c43a00;
+  }
+
+  /* --u is one Figma pixel of the active frame, so the whole composition scales together. */
+  .canvas {
+    --u: calc(100cqw / 1520);
+    position: absolute;
+    inset: 0;
+  }
+
+  .art,
+  .rules,
+  .soft {
+    position: absolute;
+    inset: 0;
+  }
+
+  .art :global(img) {
+    max-width: none;
+  }
+
+  .art :global(.backdrop) {
+    position: absolute;
+    left: -4.35%;
+    top: -60.06%;
+    width: 108.7%;
+    height: 219.34%;
+  }
+
+  .art :global(.backdrop-glow) {
+    position: absolute;
+    left: 0;
+    top: calc(-2 * var(--u));
+    width: 100%;
+    height: calc(512 * var(--u));
+    object-fit: cover;
+    filter: blur(calc(250 * var(--u)));
+  }
+
+  /* Positioned by centre point (--cx, --cy), as rotation pivots around the centre. */
+  .art :global(.figure) {
+    --w: 755;
+    --h: 944;
+    position: absolute;
+    left: calc((var(--cx) - var(--w) / 2) * var(--u));
+    top: calc((var(--cy) - var(--h) / 2) * var(--u));
+    width: calc(var(--w) * var(--u));
+    height: calc(var(--h) * var(--u));
+    object-fit: cover;
+    transform: var(--pose);
+  }
+
+  .art :global(.figure--left),
+  .art :global(.figure--soft-left) {
+    --cx: 257.03;
+    --cy: 335.36;
+    --pose: rotate(17.68deg);
+  }
+
+  .art :global(.figure--right) {
+    --cx: 1272.03;
+    --cy: 314.36;
+    --pose: rotate(162.32deg) scaleY(-1);
+  }
+
+  .art :global(.figure--soft-right) {
+    --cx: 1262.97;
+    --cy: 333.36;
+    --pose: rotate(162.32deg) scaleY(-1);
+  }
+
+  .art :global(.figure--soft-left),
+  .art :global(.figure--soft-right) {
+    filter: blur(calc(17.7 * var(--u)));
+  }
+
+  .art :global(.figure--soft-mobile) {
+    --w: 386;
+    --h: 482;
+    --cx: 126.35;
+    --cy: 195.54;
+    --pose: rotate(7.65deg);
+    filter: blur(calc(15 * var(--u)));
+  }
+
+  .soft--mobile,
+  .rules--mobile {
+    display: none;
+  }
+
+  .rule {
+    --alpha: 0.2;
+    position: absolute;
+    background: rgb(255 255 255 / var(--alpha));
+  }
+
+  .rule--strong {
+    --alpha: 0.5;
+  }
+
+  .rule--h {
+    left: calc(var(--x) * var(--u));
+    top: calc((var(--y) - var(--t)) * var(--u));
+    width: calc(var(--l) * var(--u));
+    height: max(1px, calc(var(--t) * var(--u)));
+    transform-origin: left center;
+  }
+
+  .rule--v {
+    left: calc(var(--x) * var(--u));
+    top: calc(var(--y) * var(--u));
+    width: max(1px, calc(var(--t) * var(--u)));
+    height: calc(var(--l) * var(--u));
+    transform-origin: center top;
+  }
+
+  .title {
+    position: absolute;
+    inset: 0;
+    color: #fff;
+    font-family: var(--font-display);
+    line-height: 1;
+    text-align: center;
+  }
+
+  .title__line {
+    position: absolute;
+    left: calc(var(--center) * var(--u));
+    top: calc(var(--top) * var(--u));
+    font-size: calc(var(--size) * var(--u));
+    white-space: nowrap;
+    translate: -50% 0;
+  }
+
+  .title__line--future {
+    --center: 760.5;
+    --top: 97.4;
+    --size: 175;
+  }
+
+  .title__line--snoops {
+    --center: 760.5;
+    --top: 263.4;
+    --size: 151.2;
+  }
+
+  /* Mobile frame: its own 350x320 composition with a single figure. */
+  @media (max-width: 767px) {
+    .stage {
+      aspect-ratio: 350 / 320;
+    }
+
+    .canvas {
+      --u: calc(100cqw / 350);
+    }
+
+    .art :global(.backdrop-glow),
+    .art :global(.figure--right),
+    .soft--desktop,
+    .rules--desktop {
+      display: none;
+    }
+
+    .soft--mobile,
+    .rules--mobile {
+      display: block;
+    }
+
+    .art :global(.figure--left) {
+      --w: 386;
+      --h: 482;
+      --cx: 126.35;
+      --cy: 195.54;
+      --pose: rotate(7.65deg);
+    }
+
+    .title__line--future {
+      --center: 261;
+      --top: 159;
+      --size: 54;
+    }
+
+    .title__line--snoops {
+      --center: 260.5;
+      --top: 218;
+      --size: 48;
+    }
+  }
+
+  /* Load-in: the grid draws itself, then the headline rises into place. */
+  @media (prefers-reduced-motion: no-preference) {
+    .rule {
+      animation: 1100ms var(--ease-out) both;
+      animation-delay: calc(var(--i) * 30ms);
+    }
+
+    .rule--h {
+      animation-name: draw-across;
+    }
+
+    .rule--v {
+      animation-name: draw-down;
+    }
+
+    .title__line {
+      animation: rise 1000ms var(--ease-out) 200ms both;
+    }
+
+    .title__line--snoops {
+      animation-delay: 320ms;
+    }
+
+    @keyframes draw-across {
+      from {
+        transform: scaleX(0);
+      }
+    }
+
+    @keyframes draw-down {
+      from {
+        transform: scaleY(0);
+      }
+    }
+
+    @keyframes rise {
+      from {
+        clip-path: inset(-10% -5% 110% -5%);
+        transform: translateY(18%);
+      }
+      to {
+        clip-path: inset(-10% -5% -10% -5%);
+        transform: none;
+      }
+    }
+  }
+</style>
