@@ -1,0 +1,208 @@
+---
+// "Ask. Discover. Create" (Figma 77:76 desktop, 107:253 mobile).
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import { links } from '../data/links';
+import Tag from './Tag.astro';
+import PromptPill from './PromptPill.astro';
+import museImage from '../assets/home/ask-muse.png';
+import tennisImage from '../assets/home/creator-tennis.png';
+
+const features = [
+  {
+    tag: 'Ask us Anything',
+    title: 'From Search to Conversation',
+    copy: [
+      'MUSE, our creative AI agent, allows you to ask questions in natural language and receive focused answers grounded in Future Snoops intelligence.',
+      'Explore what an emerging development means for your consumer, category, market or business. Connect insights across different areas of research and follow every answer back to its original source.',
+      'The intelligence arranges itself around your question, not the other way around.',
+    ],
+    image: museImage,
+    alt: 'Two models in sculptural black and red outfits against an orange and blue sky',
+    prompt: 'What are the top 5 keys for woman wear for FW27/287',
+    tone: 'orange',
+    mediaFirst: false,
+  },
+  {
+    tag: 'Creator Tools',
+    title: 'From Insight to Action',
+    copy: [
+      'Move directly from research into creative exploration with our expanded collection of AI-powered Creator Tools.',
+      'Develop concepts. Experiment with palettes. Create and refine imagery. Build moodboards. Bring a sketch to life or follow an entirely new direction.',
+      'Discover the opportunity.<br />Then explore what it could become.',
+    ],
+    image: tennisImage,
+    alt: 'Tennis player mid-swing, blurred by a long exposure in orange light',
+    prompt: 'Add long exposure motion blur to this image',
+    tone: 'lime',
+    mediaFirst: true,
+  },
+];
+---
+
+<section class="features" aria-labelledby="features-title">
+  <h2 class="section-title" id="features-title" data-reveal>Ask. Discover. Create</h2>
+
+  {
+    features.map((feature) => (
+      <div class:list={['feature', { 'feature--media-first': feature.mediaFirst }]}>
+        <article class:list={['feature__card', `feature__card--${feature.tone}`]} data-reveal>
+          <Tag>{feature.tag}</Tag>
+          <div class="feature__content">
+            <h3 class="card-title">{feature.title}</h3>
+            <div class="feature__copy body-copy">
+              {feature.copy.map((paragraph) => (
+                <p set:html={paragraph} />
+              ))}
+            </div>
+          </div>
+          <Button class="feature__cta" href={links.requestDemo}>Request a Demo</Button>
+        </article>
+
+        <figure class="feature__media" data-reveal style="--reveal-delay:120">
+          <Image
+            src={feature.image}
+            alt={feature.alt}
+            widths={[400, 700, 1000]}
+            sizes="(max-width: 1023px) 100vw, 42vw"
+            format="webp"
+            style="object-position: 50% 29%"
+          />
+          <PromptPill prompt={feature.prompt} />
+        </figure>
+      </div>
+    ))
+  }
+</section>
+
+<style>
+  .features {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 56px 16px 40px;
+  }
+
+  .feature {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .feature__card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    color: var(--color-ink-soft);
+  }
+
+  .feature__card--orange {
+    background: var(--color-orange);
+  }
+
+  .feature__card--lime {
+    background: var(--color-lime);
+  }
+
+  .feature__content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .feature__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .feature__media {
+    position: relative;
+    height: 330px;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+  }
+
+  .feature__media > :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1200ms var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .feature__media:hover > :global(img) {
+      transform: scale(1.04);
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .features {
+      gap: 40px;
+      padding: 80px 24px 64px;
+    }
+
+    .feature {
+      gap: 16px;
+    }
+
+    .feature__card {
+      padding: 32px;
+    }
+
+    .feature__media {
+      height: 440px;
+    }
+  }
+
+  /*
+    Desktop: card 840 x 584 beside the photo (665), 15px apart. The second row puts the
+    photo first. Mobile keeps the card first in both rows.
+  */
+  @media (min-width: 1024px) {
+    .features {
+      gap: calc(80 * var(--s));
+      max-width: var(--frame);
+      margin-inline: auto;
+      padding: calc(100 * var(--s)) calc(40 * var(--s));
+    }
+
+    .feature {
+      flex-direction: row;
+      gap: calc(15 * var(--s));
+    }
+
+    .feature--media-first .feature__media {
+      order: -1;
+    }
+
+    .feature__card {
+      flex: 0 0 calc(840 * var(--s));
+      gap: calc(35 * var(--s));
+      min-height: calc(584 * var(--s));
+      padding: calc(33 * var(--s)) calc(33 * var(--s)) calc(24 * var(--s));
+    }
+
+    .feature__content {
+      gap: calc(20 * var(--s));
+    }
+
+    .feature__copy {
+      gap: calc(15 * var(--s));
+    }
+
+    .feature__card :global(.feature__cta) {
+      margin-top: auto;
+    }
+
+    .feature__media {
+      flex: 1;
+      height: auto;
+    }
+  }
+</style>

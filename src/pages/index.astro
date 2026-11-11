@@ -1,19 +1,27 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SiteHeader from '../components/SiteHeader.astro';
-import HeroStage from '../components/HeroStage.astro';
-import HeroIntro from '../components/HeroIntro.astro';
+import Hero from '../components/Hero.astro';
+import Promos from '../components/Promos.astro';
+import Features from '../components/Features.astro';
+import Gift from '../components/Gift.astro';
+import Era from '../components/Era.astro';
+import Principles from '../components/Principles.astro';
+import StayCurious from '../components/StayCurious.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 ---
 
 <BaseLayout
-  title="Future Snoops"
-  description="A conversational, AI-powered intelligence platform built for creators"
+  title="Future Snoops — A conversational, AI-powered intelligence platform"
+  description="The New Future Snoops Experience: a conversational, AI-powered intelligence platform built for creators. Ask, discover and create with MUSE and Creator Tools."
 >
-  <div class="page">
-    <SiteHeader />
-    <main>
-      <HeroStage />
-      <HeroIntro />
-    </main>
-  </div>
+  <main id="main">
+    <Hero />
+    <Promos />
+    <Features />
+    <Gift />
+    <Era />
+    <Principles />
+    <StayCurious />
+  </main>
+  <SiteFooter />
 </BaseLayout>

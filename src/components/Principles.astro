@@ -1,0 +1,320 @@
+---
+/*
+  Principles (Figma 98:22 desktop, 107:386 mobile). On desktop the cards start 500px in
+  and run past the right edge, so the row scrolls sideways (drag, wheel or keyboard).
+  On mobile they stack.
+*/
+import { Image } from 'astro:assets';
+import roiImage from '../assets/home/principle-roi.png';
+import peopleImage from '../assets/home/principle-people.png';
+import aliveImage from '../assets/home/principle-alive.png';
+import joyImage from '../assets/home/era-01.png';
+import futureImage from '../assets/home/era-02.png';
+
+const principles = [
+  {
+    title: 'Your creativity has the highest ROI',
+    copy: 'As brands become surrounded by a sea of sameness, originality has never been more valuable or felt more risky. We give you the intelligence and confidence to explore new paths, make bolder decisions and create what cannot be replicated.',
+    image: roiImage,
+    alt: 'Two models in sculptural black and red outfits against an orange sky',
+    position: '50% 21%',
+    tone: 'orange',
+  },
+  {
+    title: 'Nothing matters more than our people',
+    copy: 'AI cannot replace the taste, intuition, and expertise our team has developed over decades. We use technology to extend the reach of their intelligence, bringing their knowledge into more conversations, decisions, and creative moments.',
+    image: peopleImage,
+    alt: 'Silhouetted profile against a bright lime gradient',
+    position: '50% 50%',
+    tone: 'lime',
+  },
+  {
+    title: 'Intelligence should be alive',
+    copy: 'The right insight should not remain hidden inside a report. It should be available to discover, question, connect, and create with; whether inspiration has just struck or you need evidence to move an idea forward.',
+    image: aliveImage,
+    alt: 'Woman in a pink hat and heart-shaped sunglasses against a pink background',
+    position: '50% 5%',
+    tone: 'pink',
+  },
+  {
+    title: 'The creative process should be joyous',
+    copy: 'Somewhere between shortened production cycles and rising expectations, we lost some of the joy of making. We are creating more room to experiment, follow a tangent, discover unexpected connections, and enjoy the creative process again.',
+    image: joyImage,
+    alt: 'Portrait of a woman in oversized blue sunglasses',
+    position: '50% 0%',
+    tone: 'violet',
+  },
+  {
+    title: 'The future is ours to create',
+    copy: 'No one can predict exactly how AI will reshape the creative landscape. But together, guided by these principles, we can help shape a future in which technology expands human potential, and creativity is set free.',
+    image: futureImage,
+    alt: 'Sculpted black figure in red sunglasses against a red background',
+    position: '50% 50%',
+    tone: 'red',
+  },
+];
+---
+
+<section class="principles" aria-labelledby="principles-title">
+  <h2 class="principles__title" id="principles-title" data-reveal>
+    As we shape what comes next from Future Snoops, we will be guided by these principles.
+  </h2>
+
+  <div class="principles__track" data-principles-track tabindex="0" role="region" aria-label="Our principles">
+    <ul class="principles__list">
+      {
+        principles.map((principle, index) => (
+          <li class:list={['principle', `principle--${principle.tone}`]} data-reveal style={`--reveal-delay:${index * 90}`}>
+            <div class="principle__media">
+              <Image
+                src={principle.image}
+                alt={principle.alt}
+                widths={[350, 700]}
+                sizes="(max-width: 767px) 100vw, 350px"
+                format="webp"
+                draggable="false"
+                style={`object-position: ${principle.position}`}
+              />
+            </div>
+            <h3 class="principle__title">{principle.title}</h3>
+            <p class="principle__copy">{principle.copy}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<script>
+  // Drag to scroll with a mouse; touch and trackpads scroll natively.
+  const track = document.querySelector<HTMLElement>('[data-principles-track]');
+
+  if (track) {
+    let startX = 0;
+    let startScroll = 0;
+    let dragging = false;
+    let moved = false;
+
+    track.addEventListener('pointerdown', (event) => {
+      if (event.pointerType !== 'mouse' || track.scrollWidth <= track.clientWidth) return;
+      dragging = true;
+      moved = false;
+      startX = event.clientX;
+      startScroll = track.scrollLeft;
+      track.setPointerCapture(event.pointerId);
+    });
+
+    track.addEventListener('pointermove', (event) => {
+      if (!dragging) return;
+      const delta = event.clientX - startX;
+      if (Math.abs(delta) > 4) {
+        moved = true;
+        track.classList.add('is-dragging');
+      }
+      track.scrollLeft = startScroll - delta;
+    });
+
+    const stop = () => {
+      dragging = false;
+      track.classList.remove('is-dragging');
+    };
+    track.addEventListener('pointerup', stop);
+    track.addEventListener('pointercancel', stop);
+    track.addEventListener('click', (event) => moved && event.preventDefault(), true);
+  }
+</script>
+
+<style>
+  .principles {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 40px 20px 48px;
+  }
+
+  .principles__title {
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-size: 24px;
+    line-height: 34px;
+  }
+
+  .principles__list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .principle {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 24px;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    color: var(--color-ink-soft);
+  }
+
+  .principle--orange {
+    background: var(--color-orange);
+    color: var(--color-white);
+  }
+
+  .principle--lime {
+    background: var(--color-lime-pale);
+  }
+
+  .principle--pink {
+    background: var(--color-pink);
+  }
+
+  .principle--violet {
+    background: var(--color-violet);
+    color: var(--color-white);
+  }
+
+  .principle--red {
+    background: var(--color-red);
+    color: var(--color-white);
+  }
+
+  .principle__media {
+    height: 250px;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+
+  .principle__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1000ms var(--ease-out);
+    user-select: none;
+  }
+
+  .principle__title,
+  .principle__copy {
+    padding-inline: 20px;
+  }
+
+  .principle__title {
+    font-family: var(--font-display);
+    font-size: 26px;
+    line-height: 32px;
+  }
+
+  .principle__copy {
+    font-size: 14px;
+    line-height: 21px;
+    letter-spacing: -1px;
+  }
+
+  @media (hover: hover) {
+    .principle:hover .principle__media :global(img) {
+      transform: scale(1.06);
+    }
+  }
+
+  /* Tablet and up: one sideways-scrolling row. */
+  @media (min-width: 768px) {
+    .principles {
+      gap: 48px;
+      padding: 72px 0 64px;
+    }
+
+    .principles__title {
+      padding-inline: 32px;
+      font-size: 44px;
+      line-height: 1.1;
+    }
+
+    .principles__track {
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 32px;
+      scrollbar-width: none;
+      cursor: grab;
+    }
+
+    .principles__track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .principles__track.is-dragging {
+      scroll-snap-type: none;
+      cursor: grabbing;
+    }
+
+    .principles__list {
+      flex-direction: row;
+      gap: 24px;
+      width: max-content;
+      padding-inline: 32px;
+    }
+
+    .principle {
+      flex: 0 0 331px;
+      scroll-snap-align: start;
+    }
+
+    .principle__media {
+      height: 237px;
+    }
+  }
+
+  /*
+    Desktop: heading 1458px wide, centred; cards 331px with 24px gaps, the first at x510
+    of the 1600 frame.
+  */
+  @media (min-width: 1024px) {
+    .principles {
+      gap: calc(80 * var(--s));
+      padding: calc(100 * var(--s)) 0;
+    }
+
+    .principles__title {
+      width: calc(1458 * var(--s));
+      margin-inline: auto;
+      padding: 0;
+      /* Slightly under the shared Anton factor, to keep the file's two-line wrap. */
+      font-size: calc(76 * var(--s));
+      line-height: calc(100 * var(--s));
+    }
+
+    .principles__track {
+      scroll-padding-inline: calc(510 * var(--s));
+    }
+
+    .principles__list {
+      gap: calc(24 * var(--s));
+      padding-inline: max(calc(510 * var(--s)), calc(50vw - var(--frame) / 2 + 510 * var(--s))) calc(40 * var(--s));
+    }
+
+    .principle {
+      flex-basis: calc(331 * var(--s));
+      gap: calc(24 * var(--s));
+      min-height: calc(549 * var(--s));
+      padding-bottom: calc(24 * var(--s));
+    }
+
+    .principle__media {
+      height: calc(237 * var(--s));
+    }
+
+    .principle__title,
+    .principle__copy {
+      padding-inline: calc(19 * var(--s));
+    }
+
+    .principle__title {
+      font-size: calc(32 * var(--anton) * var(--s));
+      line-height: calc(32 * var(--s));
+    }
+
+    .principle__copy {
+      font-size: max(13px, calc(18 * var(--s)));
+      line-height: 1.222;
+    }
+  }
+</style>

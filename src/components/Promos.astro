@@ -1,0 +1,207 @@
+---
+// Two promo cards under the hero (Figma 75:2 desktop, 107:231 mobile).
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import { links } from '../data/links';
+import colorImage from '../assets/home/promo-color.png';
+import eventImage from '../assets/home/promo-event.png';
+import dots from '../assets/home/carousel-dots.svg';
+---
+
+<section class="promos" aria-label="Offers">
+  <article class="promo promo--color" data-reveal>
+    <div class="promo__media">
+      <Image
+        src={colorImage}
+        alt="Woman in a yellow outfit and sunglasses sitting against a turquoise wall"
+        widths={[400, 700, 900]}
+        sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 28vw"
+        format="webp"
+      />
+      <img class="promo__dots" src={dots.src} width="46" height="12" alt="" />
+    </div>
+    <div class="promo__body">
+      <div class="promo__text">
+        <p class="promo__eyebrow">Your 7 days free color trial</p>
+        <h2 class="promo__title">A new way to experience color</h2>
+      </div>
+      <Button size="sm" href={links.colorTrial}>Start Now</Button>
+    </div>
+  </article>
+
+  <article class="promo promo--event" data-reveal style="--reveal-delay:120">
+    <div class="promo__media">
+      <Image
+        src={eventImage}
+        alt="Manhattan skyline seen through tall windows from inside a lounge"
+        widths={[400, 700]}
+        sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 20vw"
+        format="webp"
+      />
+    </div>
+    <div class="promo__body">
+      <div class="promo__text">
+        <p class="promo__eyebrow">In-person event</p>
+        <h2 class="promo__title">Meet us in manhattan</h2>
+      </div>
+      <Button size="sm" href={links.events}>Register for free</Button>
+    </div>
+  </article>
+</section>
+
+<style>
+  .promos {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .promo {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 12px;
+    color: var(--color-ink-soft);
+  }
+
+  .promo--color {
+    background: var(--color-orange);
+  }
+
+  .promo--event {
+    background: var(--color-lime);
+  }
+
+  .promo__media {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+  }
+
+  .promo__media :global(img:not(.promo__dots)) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 900ms var(--ease-out);
+  }
+
+  .promo__dots {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    translate: -50% 0;
+  }
+
+  .promo__body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .promo__text {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .promo__eyebrow {
+    font-size: 14px;
+    line-height: 21px;
+    letter-spacing: -0.5px;
+  }
+
+  .promo__title {
+    font-size: 24px;
+    line-height: 32px;
+    letter-spacing: -1.5px;
+  }
+
+  @media (hover: hover) {
+    .promo:hover .promo__media :global(img:not(.promo__dots)) {
+      transform: scale(1.05);
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .promos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 24px;
+      gap: 20px;
+    }
+
+    .promo__body {
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .promo__media {
+      height: 260px;
+    }
+  }
+
+  /* Desktop: one row, image beside text; the colour card is 868 of 1560. */
+  @media (min-width: 1024px) {
+    .promos {
+      flex-direction: row;
+      gap: calc(20 * var(--s));
+      max-width: var(--frame);
+      margin-inline: auto;
+      padding: calc(20 * var(--s));
+    }
+
+    .promo {
+      flex-direction: row;
+      gap: calc(15 * var(--s));
+      height: calc(293 * var(--s));
+      padding: calc(10 * var(--s));
+    }
+
+    .promo--color {
+      flex: 0 0 calc(868 * var(--s));
+    }
+
+    .promo--event {
+      flex: 1;
+    }
+
+    .promo__media {
+      height: 100%;
+    }
+
+    .promo--color .promo__media {
+      flex: 0 0 calc(432 * var(--s));
+    }
+
+    .promo--event .promo__media {
+      flex: 0 0 calc(318 * var(--s));
+    }
+
+    .promo__dots {
+      bottom: calc(20 * var(--s));
+    }
+
+    .promo__body {
+      flex: 1;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .promo__text {
+      gap: calc(20 * var(--s));
+    }
+
+    .promo__eyebrow {
+      font-size: max(13px, calc(20 * var(--s)));
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .promo__title {
+      max-width: calc(294 * var(--s));
+      font-size: calc(32 * var(--s));
+      line-height: 1.125;
+    }
+  }
+</style>

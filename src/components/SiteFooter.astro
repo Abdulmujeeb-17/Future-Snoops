@@ -1,0 +1,221 @@
+---
+// Footer (Figma 103:123 desktop, 107:416 + 107:442 mobile).
+const columns = [
+  {
+    label: '/Follow Us',
+    links: [
+      { label: 'Instagram', href: 'https://www.instagram.com/fashionsnoops/' },
+      { label: 'LinkedIn', href: 'https://www.linkedin.com/company/future-snoops' },
+      { label: 'YouTube', href: 'https://www.youtube.com/@Future_Snoops' },
+      { label: 'Pinterest', href: 'https://uk.pinterest.com/future_snoops/' },
+    ],
+  },
+  {
+    label: '/Services',
+    links: [
+      { label: 'Platform', href: 'https://www.futuresnoops.com/en/platform' },
+      { label: 'Advisory', href: 'https://www.futuresnoops.com/en/advisory' },
+      { label: 'Pricing', href: 'https://www.futuresnoops.com/en/pricing' },
+    ],
+  },
+  {
+    label: '/Community',
+    links: [
+      { label: 'Events', href: 'https://www.futuresnoops.com/en/events' },
+      { label: 'Blog', href: 'https://www.futuresnoops.com/en/discover' },
+    ],
+  },
+  {
+    label: '/Info',
+    links: [
+      { label: 'About', href: 'https://www.futuresnoops.com/en/about' },
+      { label: 'Email us', href: 'mailto:hello@futuresnoops.com' },
+      { label: 'Talk to us', href: 'tel:+13306049837' },
+    ],
+  },
+];
+---
+
+<footer class="footer">
+  <nav class="footer__columns" aria-label="Footer">
+    {
+      columns.map((column) => (
+        <div class="footer__column">
+          <h2 class="footer__label">{column.label}</h2>
+          <ul class="footer__links">
+            {column.links.map((link) => {
+              const external = link.href.startsWith('http');
+              return (
+                <li>
+                  <a
+                    href={link.href}
+                    target={external ? '_blank' : undefined}
+                    rel={external ? 'noopener noreferrer' : undefined}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))
+    }
+  </nav>
+
+  <p class="footer__wordmark" aria-hidden="true" data-reveal>Future Snoops</p>
+</footer>
+
+<style>
+  .footer {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 40px 0 0;
+    overflow: hidden;
+  }
+
+  .footer__columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 20px;
+    padding-inline: 20px;
+  }
+
+  /* Right-hand column on mobile: Services and Info. */
+  .footer__column:nth-child(even) {
+    text-align: right;
+  }
+
+  .footer__label {
+    margin-bottom: 14px;
+    color: var(--color-muted);
+    font-family: var(--font-label);
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .footer__links {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-family: var(--font-footer);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 44px;
+    letter-spacing: -1.1px;
+  }
+
+  .footer__links a {
+    position: relative;
+    display: inline-block;
+    transition: color 250ms ease;
+  }
+
+  .footer__links a::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 6px;
+    height: 2px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 450ms var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .footer__links a:hover {
+      color: var(--color-signal);
+    }
+
+    .footer__links a:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+
+  .footer__wordmark {
+    font-family: var(--font-display);
+    font-size: 15.9vw;
+    line-height: 0.97;
+    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 768px) {
+    .footer {
+      padding-top: 56px;
+    }
+
+    .footer__columns {
+      grid-template-columns: repeat(4, 1fr);
+      padding-inline: 32px;
+    }
+
+    .footer__column:nth-child(even) {
+      text-align: left;
+    }
+
+    .footer__column:nth-child(2),
+    .footer__column:nth-child(3) {
+      text-align: center;
+    }
+
+    .footer__column:last-child {
+      text-align: right;
+    }
+  }
+
+  /*
+    Anton runs wider than the file's Vanguard, so the wordmark is sized to the same
+    1560px span rather than the 320px font size.
+
+    Desktop: four columns spread across the frame (left, centred, centred, right),
+    labels 20/24, links 30/35, then the wordmark across the full width.
+  */
+  @media (min-width: 1024px) {
+    .footer {
+      gap: calc(10 * var(--s));
+      max-width: var(--frame);
+      margin-inline: auto;
+      padding: calc(50 * var(--s)) 0;
+    }
+
+    .footer__columns {
+      display: flex;
+      justify-content: space-between;
+      padding-inline: calc(20 * var(--s)) calc(40 * var(--s));
+    }
+
+    .footer__column {
+      width: calc(162 * var(--s));
+    }
+
+    .footer__column:first-child {
+      width: calc(150 * var(--s));
+    }
+
+    .footer__label {
+      margin-bottom: calc(26 * var(--s));
+      font-size: max(14px, calc(20 * var(--s)));
+      line-height: 1.2;
+    }
+
+    .footer__links {
+      gap: calc(10 * var(--s));
+      font-size: calc(30 * var(--s));
+      line-height: calc(35 * var(--s));
+    }
+
+    .footer__links a::after {
+      bottom: 0;
+    }
+
+    .footer__wordmark {
+      padding-inline: calc(20 * var(--s));
+      font-size: calc(272 * var(--s));
+      line-height: calc(300 * var(--s));
+    }
+  }
+</style>

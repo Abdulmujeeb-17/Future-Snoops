@@ -1,0 +1,330 @@
+---
+// "Our Gift to You" (Figma 80:168 desktop, 107:299 mobile).
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import { links } from '../data/links';
+import Tag from './Tag.astro';
+import runwayImage from '../assets/home/gift-runway.png';
+import colorImage from '../assets/home/gift-color.png';
+import dot from '../assets/home/dot.svg';
+
+const gifts = [
+  {
+    tag: 'Live Runway Intelligence',
+    title: 'A New Runway Experience',
+    copy: 'Spot emerging ideas across designers, collections and cities. Track the colors, silhouettes, materials and product categories shaping the season.',
+    image: runwayImage,
+    alt: 'Model in white with orange gloves posing in front of a coral pavilion',
+    position: '50% 16%',
+    tone: 'orange',
+    href: links.runwayTrial,
+  },
+  {
+    tag: 'Free FS Color Intelligence',
+    title: 'A New Color Experience',
+    copy: 'Explore our color forecasts, ask anything about color, build palettes and experiment with color before you sample.',
+    image: colorImage,
+    alt: 'Phone showing the Future Snoops color tool with gradient swatches',
+    position: '50% 50%',
+    tone: 'lime',
+    href: links.colorTrial,
+  },
+];
+
+// Enough copies to fill the widest screen twice, so the loop has no visible seam.
+const marqueeItems = Array.from({ length: 7 });
+---
+
+<section class="gift" aria-labelledby="gift-title">
+  <h2 class="section-title" id="gift-title" data-reveal>Our Gift to You</h2>
+
+  <div class="gift__grid">
+    {
+      gifts.map((gift, index) => (
+        <article class="gift__item" data-reveal style={`--reveal-delay:${index * 120}`}>
+          <div class="gift__media">
+            <Image
+              src={gift.image}
+              alt={gift.alt}
+              widths={[400, 800, 1200]}
+              sizes="(max-width: 767px) 100vw, 46vw"
+              format="webp"
+              style={`object-position: ${gift.position}`}
+            />
+          </div>
+          <div class:list={['gift__card', `gift__card--${gift.tone}`]}>
+            <div class="gift__tags">
+              <Tag compact>{gift.tag}</Tag>
+              <Tag compact>Free Access for 7 days</Tag>
+            </div>
+            <div class="gift__content">
+              <h3 class="card-title">{gift.title}</h3>
+              <p class="body-copy">{gift.copy}</p>
+            </div>
+            <Button class="gift__cta" href={gift.href}>Start exploring Runway - Free Trial</Button>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  <div class="gift__footer">
+    <div class="marquee" aria-label="Try it Now" role="img">
+      {
+        [0, 1].map(() => (
+          <div class="marquee__track" aria-hidden="true">
+            {marqueeItems.map(() => (
+              <span class="marquee__item">
+                Try it Now
+                <img src={dot.src} width="16" height="16" alt="" />
+              </span>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+    <p class="gift__note body-copy" data-reveal>
+      There’s no obligation to purchase. We just want you to see it for yourself.<br />
+      Use the unique link we’ll email you to start your 7 days whenever you’re ready.
+    </p>
+  </div>
+</section>
+
+<style>
+  .gift {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 40px 16px 48px;
+  }
+
+  .gift__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .gift__item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gift__media {
+    height: 300px;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+  }
+
+  .gift__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1200ms var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .gift__item:hover .gift__media :global(img) {
+      transform: scale(1.04);
+    }
+  }
+
+  .gift__card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    color: var(--color-ink-soft);
+  }
+
+  .gift__card--orange {
+    background: var(--color-orange);
+  }
+
+  .gift__card--lime {
+    background: var(--color-lime);
+  }
+
+  .gift__tags {
+    display: flex;
+    gap: 8px;
+  }
+
+  .gift__tags :global(.tag) {
+    flex: 1;
+  }
+
+  /* The colour card's tags are a little taller in the mobile frame (38px vs 32px). */
+  .gift__card--lime .gift__tags :global(.tag) {
+    padding-block: 8px;
+  }
+
+  .gift__content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .gift__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ---------- Marquee ---------- */
+
+  .marquee {
+    display: flex;
+    height: 56px;
+    overflow: hidden;
+    background: var(--color-lime);
+    color: var(--color-ink-soft);
+  }
+
+  .marquee__track {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 20px;
+    padding-right: 20px;
+  }
+
+  .marquee__item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 22px;
+    line-height: 30px;
+    letter-spacing: -1.5px;
+    white-space: nowrap;
+  }
+
+  .gift__note {
+    color: var(--color-ink-soft);
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee__track {
+      animation: marquee 28s linear infinite;
+    }
+
+    .marquee:hover .marquee__track {
+      animation-play-state: paused;
+    }
+
+    @keyframes marquee {
+      to {
+        transform: translateX(-100%);
+      }
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .gift {
+      gap: 40px;
+      padding: 64px 24px;
+    }
+
+    .gift__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .gift__card {
+      flex: 1;
+      padding: 24px;
+    }
+
+    .gift__card :global(.gift__cta) {
+      margin-top: auto;
+    }
+
+    .gift__tags {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .marquee {
+      height: 64px;
+    }
+
+    .marquee__item {
+      font-size: 26px;
+    }
+  }
+
+  /* Desktop: two 720px columns 80px apart; photo 584, card 423, 15px between. */
+  @media (min-width: 1024px) {
+    .gift {
+      gap: calc(80 * var(--s));
+      max-width: var(--frame);
+      margin-inline: auto;
+      padding: calc(100 * var(--s)) calc(40 * var(--s));
+    }
+
+    .gift__grid {
+      flex-direction: row;
+      gap: calc(80 * var(--s));
+    }
+
+    .gift__item {
+      flex: 1;
+      gap: calc(15 * var(--s));
+    }
+
+    .gift__media {
+      height: calc(584 * var(--s));
+    }
+
+    .gift__card {
+      gap: 0;
+      min-height: calc(423 * var(--s));
+      padding: calc(33 * var(--s)) calc(33 * var(--s)) calc(28 * var(--s)) calc(23 * var(--s));
+    }
+
+    .gift__tags {
+      justify-content: space-between;
+      padding-inline: calc(10 * var(--s)) 0;
+    }
+
+    .gift__tags :global(.tag) {
+      flex: none;
+    }
+
+    .gift__content {
+      gap: calc(20 * var(--s));
+      margin-top: calc(35 * var(--s));
+      padding-left: calc(10 * var(--s));
+    }
+
+    .gift__card :global(.gift__cta) {
+      margin-top: auto;
+    }
+
+    .gift__footer {
+      gap: calc(40 * var(--s));
+    }
+
+    .marquee {
+      height: calc(80 * var(--s));
+    }
+
+    .marquee__track {
+      gap: calc(32 * var(--s));
+      padding-right: calc(32 * var(--s));
+    }
+
+    .marquee__item {
+      gap: calc(15 * var(--s));
+      font-size: calc(32 * var(--s));
+      line-height: 1.125;
+    }
+
+    .marquee__item img {
+      width: calc(16 * var(--s));
+      height: calc(16 * var(--s));
+    }
+  }
+</style>

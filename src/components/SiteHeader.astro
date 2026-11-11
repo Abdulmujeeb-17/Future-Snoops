@@ -1,33 +1,76 @@
 ---
-import Button from './Button.astro';
-import menuIcon from '../assets/hero/menu-button.svg';
+/*
+  Header over the hero: wordmark left, "Menu" right (Figma 72:211 / 72:212).
 
-const navItems = ['Future Snoops', 'Platform', 'Advisory', 'Pricing', 'Events', 'Discover'];
+  The menu copies the motion of asake.framer.website (measured frame by frame):
+  - open: a black panel drops from the top in 400ms (strong ease-in-out) while the page
+    behind dims to 80% black; once it lands, the links drop 40px into place and fade in,
+    45ms apart, over 650ms with a soft ease-out.
+  - close: the panel lifts away in 400ms while the links fade out upwards in turn.
+  Links are grey and turn white on hover; social links sit top-left, a tagline bottom-left.
+*/
+const site = 'https://www.futuresnoops.com/en';
+
+const menuItems = [
+  { label: 'About', href: `${site}/about` },
+  { label: 'Platform', href: `${site}/platform` },
+  { label: 'Advisory', href: `${site}/advisory` },
+  { label: 'Pricing', href: `${site}/pricing` },
+  { label: 'Events', href: `${site}/events` },
+  { label: 'Discover', href: `${site}/discover` },
+];
+
+const socials = [
+  { label: 'Instagram', href: 'https://www.instagram.com/fashionsnoops/' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/future-snoops' },
+  { label: 'YouTube', href: 'https://www.youtube.com/@Future_Snoops' },
+  { label: 'Pinterest', href: 'https://uk.pinterest.com/future_snoops/' },
+];
 ---
 
 <header class="header" data-site-header>
-  <a class="brand">Future Snoops</a>
+  <a class="brand" href="/" aria-label="Future Snoops, home">Future Snoops</a>
 
   <button
     class="toggle"
     type="button"
-    aria-label="Menu"
     aria-expanded="false"
     aria-controls="site-menu"
     data-menu-toggle
   >
-    <img src={menuIcon.src} width="54" height="48" alt="" />
+    <span class="toggle__label toggle__label--open">Menu</span>
+    <span class="toggle__label toggle__label--close" aria-hidden="true">Close</span>
   </button>
 
-  <div class="menu" id="site-menu">
-    <nav aria-label="Primary">
-      <ul class="nav">
-        {navItems.map((item) => <li><a>{item}</a></li>)}
-      </ul>
-    </nav>
-    <div class="actions">
-      <a class="login">Login</a>
-      <Button>Request a Demo</Button>
+  <div class="menu" id="site-menu" data-menu hidden>
+    <div class="menu__backdrop" data-menu-backdrop></div>
+    <div class="menu__panel" data-menu-panel>
+      <div class="menu__aside">
+        <ul class="menu__socials" aria-label="Social">
+          {
+            socials.map((item) => (
+              <li>
+                <a href={item.href} target="_blank" rel="noopener noreferrer">
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="menu__tagline">A conversational, AI-powered intelligence platform built for creators.</p>
+      </div>
+
+      <nav class="menu__nav" aria-label="Primary">
+        <ul>
+          {
+            menuItems.map((item, index) => (
+              <li style={`--i:${index}`}>
+                <a href={item.href}>{item.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
     </div>
   </div>
 </header>
@@ -35,129 +78,329 @@ const navItems = ['Future Snoops', 'Platform', 'Advisory', 'Pricing', 'Events', 
 <script>
   const header = document.querySelector<HTMLElement>('[data-site-header]');
   const toggle = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = header?.querySelector<HTMLElement>('[data-menu]');
+  const panel = header?.querySelector<HTMLElement>('[data-menu-panel]');
+  const backdrop = header?.querySelector<HTMLElement>('[data-menu-backdrop]');
 
-  if (header && toggle) {
+  if (header && toggle && menu && panel && backdrop) {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const isOpen = () => header.hasAttribute('data-open');
+
+    const focusables = () => [toggle, ...menu.querySelectorAll<HTMLElement>('a[href]')];
+
     const setOpen = (open: boolean) => {
-      header.toggleAttribute('data-open', open);
       toggle.setAttribute('aria-expanded', String(open));
+      toggle.querySelector('.toggle__label--open')?.setAttribute('aria-hidden', String(open));
+      toggle.querySelector('.toggle__label--close')?.setAttribute('aria-hidden', String(!open));
+      document.body.toggleAttribute('data-menu-open', open);
+
+      if (open) {
+        menu.hidden = false;
+        // Two frames: the panel must render in its start position before it can animate.
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => header.setAttribute('data-open', '')),
+        );
+        menu.querySelector<HTMLElement>('.menu__nav a')?.focus({ preventScroll: true });
+      } else {
+        header.removeAttribute('data-open');
+        if (reducedMotion.matches) menu.hidden = true;
+      }
     };
 
-    toggle.addEventListener('click', () => setOpen(!header.hasAttribute('data-open')));
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && header.hasAttribute('data-open')) {
-        setOpen(false);
-        toggle.focus();
+    panel.addEventListener('transitionend', (event) => {
+      if (event.target === panel && event.propertyName === 'transform' && !isOpen()) {
+        menu.hidden = true;
       }
     });
 
-    window.matchMedia('(min-width: 1024px)').addEventListener('change', () => setOpen(false));
+    toggle.addEventListener('click', () => setOpen(!isOpen()));
+    backdrop.addEventListener('click', () => setOpen(false));
+
+    document.addEventListener('keydown', (event) => {
+      if (!isOpen()) return;
+      if (event.key === 'Escape') {
+        setOpen(false);
+        toggle.focus();
+      }
+      // Keep keyboard focus inside the open menu.
+      if (event.key === 'Tab') {
+        const items = focusables();
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    });
   }
 </script>
 
 <style>
   .header {
-    position: relative;
-    z-index: 10;
+    --menu-ease: cubic-bezier(0.76, 0, 0.24, 1);
+    --menu-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --menu-grey: #6f6f6f;
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 20;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-block: calc(39 * var(--px)) calc(41 * var(--px));
+    padding: 24px 16px 0 16px;
+    color: var(--color-white);
   }
 
-  .brand {
+  .brand,
+  .toggle {
+    position: relative;
+    z-index: 3;
     font-family: var(--font-display);
-    /* Anton at this size fills the 178px logo width from the desktop frame. */
-    font-size: max(1.75rem, calc(31.2 * var(--px)));
     white-space: nowrap;
   }
 
+  .brand {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
   .toggle {
-    display: none;
+    display: grid;
     padding: 0;
     border: 0;
     background: none;
+    font-size: 22px;
+    line-height: 30px;
     cursor: pointer;
   }
 
+  .toggle__label {
+    grid-area: 1 / 1;
+    text-align: right;
+    transition:
+      opacity 300ms var(--ease-out),
+      translate 400ms var(--ease-out);
+  }
+
+  .toggle__label--close {
+    opacity: 0;
+    translate: 0 40%;
+  }
+
+  .header[data-open] .toggle__label--open {
+    opacity: 0;
+    translate: 0 -40%;
+  }
+
+  .header[data-open] .toggle__label--close {
+    opacity: 1;
+    translate: none;
+  }
+
+  /* Underline that draws in on hover. */
+  .brand::after,
+  .toggle::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -2px;
+    height: 2px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 450ms var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .brand:hover::after,
+    .toggle:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+
+  /* ---------- Menu ---------- */
+
   .menu {
-    display: contents;
+    position: fixed;
+    inset: 0;
+    z-index: 2;
   }
 
-  .nav {
+  .menu__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0.8);
+    opacity: 0;
+    transition: opacity 400ms var(--menu-ease);
+  }
+
+  .menu__panel {
+    position: relative;
     display: flex;
-    align-items: center;
-    gap: calc(32 * var(--px));
-    font-size: max(0.875rem, calc(18 * var(--px)));
-    line-height: 1.11;
-    letter-spacing: -0.02em;
+    flex-direction: column;
+    gap: 40px;
+    max-height: 100%;
+    padding: 88px 16px 40px;
+    overflow-y: auto;
+    background: #000;
+    color: var(--color-white);
+    transform: translateY(-100%);
+    transition: transform 400ms var(--menu-ease);
   }
 
-  /* The first link sits centred in a 178px column in the desktop frame. */
-  .nav li:first-child {
-    width: calc(178 * var(--px));
-    text-align: center;
+  .header[data-open] .menu__backdrop {
+    opacity: 1;
   }
 
-  .actions {
+  .header[data-open] .menu__panel {
+    transform: none;
+  }
+
+  /* Links: closing state and timing first, then the open state and its timing. */
+  .menu__nav li {
+    opacity: 0;
+    transform: translateY(-40px);
+    transition:
+      opacity 400ms var(--menu-ease-out),
+      transform 400ms var(--menu-ease-out);
+    transition-delay: calc(150ms + var(--i) * 50ms);
+  }
+
+  .header[data-open] .menu__nav li {
+    opacity: 1;
+    transform: none;
+    transition-duration: 650ms;
+    transition-delay: calc(300ms + var(--i) * 45ms);
+  }
+
+  .menu__nav a {
+    display: inline-block;
+    color: var(--color-white);
+    font-family: var(--font-display);
+    font-size: clamp(52px, 15vw, 72px);
+    line-height: 0.98;
+    text-transform: uppercase;
+    transition: color 250ms ease;
+  }
+
+  .menu__aside {
     display: flex;
-    align-items: center;
-    gap: calc(20 * var(--px));
+    flex-direction: column;
+    gap: 24px;
+    order: 2;
+    color: var(--menu-grey);
+    font-size: 16px;
+    line-height: 1.15;
+    transition: opacity 400ms var(--menu-ease-out);
   }
 
-  .login {
-    font-size: max(0.9375rem, calc(20 * var(--px)));
-    letter-spacing: -0.02em;
+  .header:not([data-open]) .menu__aside {
+    opacity: 0;
   }
 
-  @media (max-width: 1023px) {
+  .header[data-open] .menu__aside {
+    transition-delay: 450ms;
+  }
+
+  .menu__socials a {
+    transition: color 250ms ease;
+  }
+
+  .menu__tagline {
+    max-width: 260px;
+    color: var(--color-white);
+    text-transform: uppercase;
+  }
+
+  @media (hover: hover) {
+    .menu__nav a {
+      color: var(--menu-grey);
+    }
+
+    .menu__nav a:hover,
+    .menu__nav a:focus-visible,
+    .menu__socials a:hover {
+      color: var(--color-white);
+    }
+
+    .menu__tagline {
+      color: var(--menu-grey);
+    }
+  }
+
+  @media (min-width: 768px) {
     .header {
-      padding-block: 24px 32px;
+      padding: 32px 32px 0;
     }
 
     .brand {
-      font-size: 28px;
+      font-size: 32px;
+      line-height: 1.4;
     }
 
     .toggle {
-      display: block;
+      font-size: 30px;
+      line-height: 1.4;
     }
 
-    .menu {
-      position: absolute;
-      inset-inline: 0;
-      top: calc(100% - 20px);
-      display: none;
-      flex-direction: column;
-      gap: 24px;
-      padding-block: 24px;
-      background: var(--color-paper);
+    /* Two columns: details on the left, links from 45% across. */
+    .menu__panel {
+      display: grid;
+      grid-template-columns: 45% 1fr;
+      gap: 0;
+      padding: 104px 32px 84px;
     }
 
-    .header[data-open] .menu {
-      display: flex;
+    .menu__aside {
+      order: 0;
+      justify-content: space-between;
     }
 
-    .nav {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 18px;
-      font-size: 20px;
+    .menu__nav a {
+      font-size: 96px;
+      line-height: 0.92;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .header {
+      padding: calc(46 * var(--s)) calc(48 * var(--s)) 0;
     }
 
-    .nav li:first-child {
-      width: auto;
-      text-align: left;
+    .brand,
+    .toggle {
+      font-size: calc(40 * var(--anton) * var(--s));
+      line-height: calc(58 * var(--s));
     }
 
-    .actions {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 18px;
+    .menu__panel {
+      padding: calc(130 * var(--s)) calc(48 * var(--s)) calc(84 * var(--s));
     }
 
-    .login {
-      font-size: 20px;
+    .menu__aside {
+      font-size: max(14px, calc(18 * var(--s)));
+    }
+
+    .menu__tagline {
+      max-width: calc(300 * var(--s));
+    }
+
+    .menu__nav a {
+      font-size: calc(118 * var(--s));
+      line-height: calc(106 * var(--s));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu__backdrop,
+    .menu__panel,
+    .menu__nav li,
+    .menu__aside,
+    .toggle__label {
+      transition: none !important;
     }
   }
 </style>

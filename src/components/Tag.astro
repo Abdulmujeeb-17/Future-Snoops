@@ -1,0 +1,49 @@
+---
+// Outlined label used at the top of feature and gift cards.
+interface Props {
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+---
+
+<span class:list={['tag', { 'tag--compact': compact }]}><slot /></span>
+
+<style>
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 14px 12px;
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+
+  .tag--compact {
+    min-height: 0;
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .tag--compact {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .tag,
+    .tag--compact {
+      min-height: max(36px, calc(44 * var(--s)));
+      padding: 0 calc(20 * var(--s));
+      font-size: max(13px, calc(18 * var(--s)));
+    }
+  }
+</style>

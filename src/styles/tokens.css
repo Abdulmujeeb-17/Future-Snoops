@@ -1,24 +1,50 @@
 /*
-  Design tokens taken from the Figma file (frames 13:83 desktop, 13:39 mobile).
-  The file defines no Figma variables, so these values come from the layers.
+  Design tokens from the Figma file "Web Design" page (desktop frame 67:117 at 1600px,
+  mobile frame 107:224 at 390px). The file defines no Figma variables, so these values
+  come from the layers. Vanguard CF in the file is replaced by Anton.
 */
 :root {
   /* Colour */
   --color-paper: #ffe8df;
   --color-ink: #000000;
+  --color-ink-soft: #2e2c2c;
+  --color-icon: #322f2f;
+  --color-muted: #808080;
+  --color-white: #ffffff;
   --color-signal: #e94100;
-  --color-on-signal: #ffffff;
+  --color-orange: #fc7f3d;
+  --color-lime: #d6dc45;
+  --color-lime-pale: #f0fe9a;
+  --color-pink: #ffbbd0;
+  --color-violet: #6863ff;
+  --color-red: #ff4248;
 
   /* Type families */
   --font-display: 'Anton', Impact, 'Arial Narrow', sans-serif;
   --font-body: 'Sora Variable', 'Sora', system-ui, sans-serif;
+  --font-footer: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --font-label: 'Arimo', Arial, sans-serif;
 
-  /* One Figma pixel of the 1600x930 frame, scaled so the frame fits the viewport. */
-  --px: min(calc(100vw / 1600), calc(100svh / 930));
+  /*
+    One Figma pixel of the 1600px desktop frame. Desktop styles are written as
+    calc(N * var(--s)) so the composition scales as one piece, up to 1920px wide.
+  */
+  --s: min(calc(100vw / 1600), 1.2px);
+  --frame: calc(1600 * var(--s));
 
-  /* Layout: 40px gutters on the 1600 frame, 20px on the 390 frame */
-  --page-gutter: max(1.25rem, 2.5vw);
+  /*
+    Anton sets about 0.8x as wide as the file's Vanguard CF at the same size (measured on
+    the headings). Desktop display sizes are multiplied by this so line widths and wraps
+    match the design; line heights keep the Figma values.
+  */
+  --anton: 0.8;
+
+  /* Shape */
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 20px;
 
   /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }

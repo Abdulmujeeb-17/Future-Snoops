@@ -1,34 +1,151 @@
 ---
-// Renders a placeholder link until a destination exists: pass `href` to activate it.
+/*
+  Call-to-action used across the page. External links open in a new tab.
+
+  size  sm: 58px, square corners (promo cards)
+        md: 67px (feature and gift cards)
+        lg: 82px, 25px label (era and closing CTAs)
+  On the 390 frame every size becomes the same 48px button.
+*/
 interface Props {
   href?: string;
+  tone?: 'white' | 'signal' | 'lime';
+  size?: 'sm' | 'md' | 'lg';
   class?: string;
+  [key: string]: unknown;
 }
 
-const { href, class: className } = Astro.props;
+const { href, tone = 'white', size = 'md', class: className, ...rest } = Astro.props;
+const external = href?.startsWith('http');
 ---
 
-<a href={href} class:list={['button', className]}><slot /></a>
+<a
+  href={href}
+  class:list={['button', `button--${tone}`, `button--${size}`, className]}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener noreferrer' : undefined}
+  {...rest}
+>
+  <span class="button__label"><slot /></span>
+</a>
 
 <style>
   .button {
+    --bg: var(--color-white);
+    --fg: var(--color-ink);
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: max(2.75rem, calc(58 * var(--px)));
-    padding-inline: max(0.875rem, calc(20 * var(--px)));
-    background: var(--color-signal);
-    color: var(--color-on-signal);
-    font-size: max(0.9375rem, calc(20 * var(--px)));
-    line-height: 1;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px;
+    padding: 14px 12px;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 14px;
+    line-height: 20px;
     letter-spacing: -0.02em;
-    white-space: nowrap;
+    text-align: center;
+    cursor: pointer;
+    transition:
+      transform 400ms var(--ease-out),
+      box-shadow 400ms var(--ease-out);
   }
 
-  @media (max-width: 1023px) {
+  .button--sm {
+    border-radius: 0;
+  }
+
+  .button--signal {
+    --bg: var(--color-signal);
+    --fg: var(--color-white);
+  }
+
+  .button--lime {
+    --bg: var(--color-lime);
+    --fg: var(--color-ink-soft);
+  }
+
+  /* Hover: a darker wash rises from the bottom edge. */
+  .button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgb(0 0 0 / 0.08);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 450ms var(--ease-out);
+  }
+
+  .button--signal::before {
+    background: rgb(0 0 0 / 0.16);
+  }
+
+  .button__label {
+    display: inline-flex;
+    align-items: center;
+    gap: inherit;
+  }
+
+  @media (hover: hover) {
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px -14px rgb(0 0 0 / 0.55);
+    }
+
+    .button:hover::before {
+      transform: scaleY(1);
+    }
+  }
+
+  .button:active {
+    transform: translateY(0);
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
     .button {
-      min-height: 58px;
-      font-size: 20px;
+      min-height: 56px;
+      font-size: 16px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .button {
+      gap: calc(15 * var(--s));
+      padding: 0 calc(20 * var(--s));
+      font-size: max(14px, calc(18 * var(--s)));
+      letter-spacing: -0.02em;
+    }
+
+    .button--sm {
+      min-height: max(44px, calc(58 * var(--s)));
+    }
+
+    .button--md {
+      min-height: max(48px, calc(67 * var(--s)));
+    }
+
+    .button--lg {
+      min-height: max(52px, calc(82 * var(--s)));
+      padding-inline: calc(29 * var(--s));
+      font-size: max(16px, calc(25 * var(--s)));
+      white-space: nowrap;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .button,
+    .button::before {
+      transition: none;
+    }
+
+    .button:hover {
+      transform: none;
     }
   }
 </style>

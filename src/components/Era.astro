@@ -1,0 +1,325 @@
+---
+// "We are entering a new era" (Figma 80:290 desktop, 107:356 mobile).
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import { links } from '../data/links';
+import era01 from '../assets/home/era-01.png';
+import era02 from '../assets/home/era-02.png';
+import era03 from '../assets/home/era-03.png';
+import play from '../assets/home/play.svg';
+import playSmall from '../assets/home/play-sm.svg';
+
+const steps = [
+  {
+    number: '01',
+    title: 'After 26 years at the forefront of change,',
+    copy: 'we’ve learned that the way forward is not to wait for certainty. It is to stay curious in the unknown, listen for what is emerging, and begin building while the path is still taking shape.',
+    image: era01,
+    alt: 'Portrait of a woman in oversized blue sunglasses against a lilac background',
+  },
+  {
+    number: '02',
+    title: 'We are carving a new path of creativity,',
+    copy: 'one where human intelligence leads, technology expands what’s possible, and our imagination has more freedom.',
+    image: era02,
+    alt: 'Sculpted black figure in red sunglasses against a red and pink background',
+  },
+  {
+    number: '03',
+    title: 'This is happening in real time,',
+    copy: 'and we’re inviting creators, partners, and leaders across the creative industry to help shape where it leads.',
+    image: era03,
+    alt: 'Woman in lime sunglasses and a green tweed jacket against a green backdrop',
+  },
+];
+---
+
+<section class="era" aria-labelledby="era-title">
+  <h2 class="era__title" id="era-title" data-reveal>
+    <span>We are</span>
+    <span>entering a</span>
+    <span>new era</span>
+  </h2>
+
+  <div class="era__body">
+    <p class="era__mission" data-reveal>But our mission remains the same; to unleash human creativity.</p>
+
+    <ol class="era__steps">
+      {
+        steps.map((step) => (
+          <li class="era__step" data-reveal>
+            <span class="era__number" aria-hidden="true">{step.number}</span>
+            <div class="era__media">
+              <Image
+                src={step.image}
+                alt={step.alt}
+                widths={[350, 640]}
+                sizes="(max-width: 1023px) 100vw, 20vw"
+                format="webp"
+              />
+            </div>
+            <h3 class="era__step-title">{step.title}</h3>
+            <p class="era__step-copy body-copy">{step.copy}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="era__cta" data-reveal>
+      <h3 class="era__cta-title">Want to be part of it?</h3>
+      <div class="era__actions">
+        <Button tone="signal" size="lg" class="era__mail" href={links.partnershipsEmail}>
+          partnerships@futuresnoops.com
+        </Button>
+        <Button tone="lime" size="lg" class="era__listen" href={links.cofounderMessage}>
+          <img class="era__play era__play--sm" src={playSmall.src} width="24" height="24" alt="" />
+          <img class="era__play era__play--lg" src={play.src} width="40" height="40" alt="" />
+          Listen to our co-founder’s message
+        </Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .era {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 40px 20px 48px;
+    color: var(--color-ink);
+  }
+
+  .era__title {
+    font-family: var(--font-display);
+    font-size: 64px;
+    line-height: 72px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .era__title span {
+    display: block;
+  }
+
+  .era__body {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .era__mission {
+    font-family: var(--font-display);
+    font-size: 24px;
+    line-height: 34px;
+  }
+
+  .era__steps {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .era__step {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .era__number {
+    color: var(--color-ink-soft);
+    font-family: var(--font-display);
+    font-size: 48px;
+    line-height: 58px;
+  }
+
+  .era__media {
+    height: 290px;
+    overflow: hidden;
+  }
+
+  .era__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 0;
+    transition: transform 1200ms var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .era__step:hover .era__media :global(img) {
+      transform: scale(1.05);
+    }
+  }
+
+  .era__step-title {
+    color: var(--color-ink-soft);
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 34px;
+  }
+
+  .era__cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    margin-top: 8px;
+  }
+
+  .era__cta-title {
+    color: var(--color-ink-soft);
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 34px;
+    text-align: center;
+  }
+
+  .era__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .era__actions :global(.era__mail) {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .era__play--lg {
+    display: none;
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .era {
+      gap: 56px;
+      padding: 72px 32px 64px;
+    }
+
+    .era__title {
+      font-size: 120px;
+      line-height: 1;
+    }
+
+    .era__mission {
+      font-size: 44px;
+      line-height: 1.1;
+    }
+
+    .era__step {
+      display: grid;
+      grid-template-columns: 72px 1fr 1fr;
+      column-gap: 24px;
+      row-gap: 12px;
+      align-items: start;
+    }
+
+    .era__number {
+      grid-row: span 2;
+    }
+
+    .era__media {
+      grid-row: span 2;
+      height: 280px;
+    }
+
+    .era__actions {
+      width: min(100%, 480px);
+    }
+  }
+
+  /*
+    Desktop: four items spread across 1484px per row (number, 315x296 photo, 366px title,
+    428px copy), the CTA block centred and 545px wide.
+  */
+  @media (min-width: 1024px) {
+    .era {
+      gap: calc(100 * var(--s));
+      max-width: var(--frame);
+      margin-inline: auto;
+      padding: calc(100 * var(--s)) 0 calc(8 * var(--s));
+    }
+
+    /* Sized so Anton matches the line widths of the file's 300px Vanguard. */
+    .era__title {
+      font-size: calc(253 * var(--s));
+      line-height: calc(300 * var(--s));
+    }
+
+    .era__body {
+      gap: calc(100 * var(--s));
+      padding: calc(58 * var(--s));
+    }
+
+    .era__mission {
+      font-size: calc(100 * var(--anton) * var(--s));
+      line-height: calc(100 * var(--s));
+    }
+
+    .era__steps {
+      gap: calc(54 * var(--s));
+    }
+
+    .era__step {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: calc(24 * var(--s));
+    }
+
+    .era__number {
+      flex: 0 0 calc(84 * var(--s));
+      font-size: calc(84 * var(--s));
+      line-height: calc(100 * var(--s));
+    }
+
+    .era__media {
+      flex: 0 0 calc(315 * var(--s));
+      height: calc(296 * var(--s));
+    }
+
+    .era__step-title {
+      flex: 0 0 calc(366 * var(--s));
+      font-size: calc(50 * var(--anton) * var(--s));
+      line-height: calc(50 * var(--s));
+    }
+
+    .era__step-copy {
+      flex: 0 0 calc(428 * var(--s));
+      color: var(--color-ink);
+    }
+
+    .era__cta {
+      gap: calc(40 * var(--s));
+      margin-top: calc(-50 * var(--s));
+    }
+
+    .era__cta-title {
+      font-size: calc(50 * var(--anton) * var(--s));
+      line-height: calc(50 * var(--s));
+    }
+
+    .era__actions {
+      gap: calc(10 * var(--s));
+      width: calc(545 * var(--s));
+    }
+
+    .era__play--sm {
+      display: none;
+    }
+
+    .era__play--lg {
+      display: block;
+      width: calc(40 * var(--s));
+      height: calc(40 * var(--s));
+    }
+
+    .era__actions :global(.era__listen) {
+      min-height: calc(92 * var(--s));
+    }
+  }
+</style>

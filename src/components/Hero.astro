@@ -1,0 +1,241 @@
+---
+/*
+  Hero (Figma 67:118 desktop 1600x1049, 107:224 mobile 390x595).
+  The photo frame is larger than the hero and offset like the Figma frame, so the
+  crop matches: desktop 1600x1724 at y-46, mobile 650x700 at x-130.
+*/
+import { Image } from 'astro:assets';
+import SiteHeader from './SiteHeader.astro';
+import heroImage from '../assets/home/hero.png';
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__media" aria-hidden="true">
+    <Image
+      class="hero__image"
+      src={heroImage}
+      alt=""
+      widths={[700, 1100, 1600, 2000]}
+      sizes="(max-width: 767px) 170vw, 100vw"
+      format="webp"
+      quality={78}
+      loading="eager"
+      fetchpriority="high"
+    />
+  </div>
+
+  <SiteHeader />
+
+  <p class="hero__statement hero__statement--left">The New Future Snoops Experience</p>
+  <p class="hero__statement hero__statement--right">A conversational, AI-powered intelligence platform</p>
+
+  <h1 class="hero__title" id="hero-title">
+    <span class="hero__title-line">Future Snoops</span>
+  </h1>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    height: 595px;
+    overflow: hidden;
+    background: var(--color-signal);
+    color: var(--color-white);
+  }
+
+  .hero__media {
+    position: absolute;
+    left: calc(50% - 325px);
+    top: 0;
+    width: 650px;
+    height: 700px;
+    background: #ffa582;
+  }
+
+  .hero__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0.46);
+  }
+
+  .hero__media :global(.hero__image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero__statement {
+    position: absolute;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 28px;
+    letter-spacing: -0.02em;
+  }
+
+  .hero__statement--left {
+    left: 16px;
+    top: 48.74%;
+    width: 280px;
+  }
+
+  .hero__statement--right {
+    right: 16px;
+    top: 65.38%;
+    width: 320px;
+    text-align: right;
+  }
+
+  .hero__title {
+    position: absolute;
+    inset: auto 16px 12px;
+    font-family: var(--font-display);
+    font-size: 62px;
+    line-height: 68px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .hero__title-line {
+    display: block;
+  }
+
+  /* Tablet: the mobile composition, with the photo widened to the viewport. */
+  @media (min-width: 768px) {
+    .hero {
+      height: min(100svh, 860px);
+      min-height: 640px;
+    }
+
+    .hero__media {
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hero__media::after {
+      background: rgb(0 0 0 / 0.38);
+    }
+
+    .hero__statement {
+      font-size: 26px;
+      line-height: 1.3;
+    }
+
+    .hero__statement--left {
+      left: 32px;
+      top: 30%;
+      width: 380px;
+    }
+
+    .hero__statement--right {
+      right: 32px;
+      top: 46%;
+      width: 420px;
+    }
+
+    .hero__title {
+      inset-inline: 32px;
+      bottom: 24px;
+      /* "Future Snoops" in Anton is about 5.7em wide; fit it between the gutters. */
+      font-size: calc((100vw - 64px) / 5.8);
+      line-height: 1;
+    }
+  }
+
+  /* Desktop: the 1600x1049 frame, scaled. */
+  @media (min-width: 1024px) {
+    .hero {
+      height: calc(1049 * var(--s));
+      min-height: 0;
+    }
+
+    .hero__media {
+      top: calc(-46 * var(--s));
+      height: calc(1724 * var(--s));
+    }
+
+    .hero__media::after {
+      background: rgb(0 0 0 / 0.33);
+    }
+
+    .hero__statement {
+      font-size: calc(32 * var(--s));
+      line-height: 1.3125;
+    }
+
+    .hero__statement--left {
+      left: calc(68 * var(--s));
+      top: calc(286 * var(--s));
+      width: calc(436 * var(--s));
+    }
+
+    .hero__statement--right {
+      right: calc(58 * var(--s));
+      top: calc(452 * var(--s));
+      width: calc(492 * var(--s));
+    }
+
+    /* Anton is wider than the file's Vanguard; this size spans the same 1318px. */
+    .hero__title {
+      inset-inline: 0;
+      bottom: calc(24 * var(--s));
+      font-size: calc(231 * var(--s));
+      line-height: 1;
+    }
+  }
+
+  @media (min-width: 1921px) {
+    .hero__media {
+      left: calc(50% - var(--frame) / 2);
+      width: var(--frame);
+    }
+  }
+
+  /* Load-in: the photo settles, then the headline rises into place. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__media :global(.hero__image) {
+      animation: settle 1800ms var(--ease-out) both;
+    }
+
+    .hero__title-line {
+      animation: rise 1100ms var(--ease-out) 250ms both;
+    }
+
+    .hero__statement {
+      animation: fade-up 900ms var(--ease-out) both;
+    }
+
+    .hero__statement--left {
+      animation-delay: 550ms;
+    }
+
+    .hero__statement--right {
+      animation-delay: 700ms;
+    }
+
+    @keyframes settle {
+      from {
+        transform: scale(1.06);
+      }
+    }
+
+    @keyframes rise {
+      from {
+        clip-path: inset(-10% -5% 110% -5%);
+        transform: translateY(22%);
+      }
+      to {
+        clip-path: inset(-10% -5% -10% -5%);
+        transform: none;
+      }
+    }
+
+    @keyframes fade-up {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+    }
+  }
+</style>

@@ -9,27 +9,36 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
+  overflow-x: clip;
   background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body[data-menu-open] {
+  overflow: hidden;
 }
 
 h1,
 h2,
 h3,
 p,
-ul {
+ul,
+figure {
   margin: 0;
   padding: 0;
 }
 
 h1,
-h2 {
+h2,
+h3 {
   font-weight: 400;
 }
 
@@ -58,22 +67,109 @@ button {
   outline-offset: 3px;
 }
 
-.page {
-  width: 100%;
-  padding-inline: var(--page-gutter);
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-/* From tablet up, the header, hero and intro together fill the viewport height. */
-@media (min-width: 768px) {
-  .page {
-    display: flex;
-    flex-direction: column;
-    min-height: 100svh;
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 12px 16px;
+  background: var(--color-white);
+  translate: 0 -200%;
+}
+
+.skip-link:focus {
+  translate: none;
+}
+
+/* ---------- Shared type styles ---------- */
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
+/* Section headings: 36/44 on the 390 frame, 72/72 on the 1600 frame. */
+.section-title {
+  color: var(--color-ink-soft);
+  font-family: var(--font-display);
+  font-size: 36px;
+  line-height: 44px;
+  text-align: center;
+}
+
+/* Card headings: 26/32 mobile, 40/40 desktop. */
+.card-title {
+  color: var(--color-ink-soft);
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 32px;
+}
+
+/* Long-form copy: 16/24 mobile, 24/32 desktop. */
+.body-copy {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -1px;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .section-title {
+    font-size: 52px;
+    line-height: 60px;
   }
 
-  .page > main {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
+  .card-title {
+    font-size: 30px;
+    line-height: 36px;
+  }
+
+  .body-copy {
+    font-size: 18px;
+    line-height: 27px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-title {
+    font-size: calc(72 * var(--anton) * var(--s));
+    line-height: calc(72 * var(--s));
+  }
+
+  .card-title {
+    font-size: calc(40 * var(--anton) * var(--s));
+    line-height: calc(40 * var(--s));
+  }
+
+  .body-copy {
+    font-size: max(15px, calc(24 * var(--s)));
+    line-height: 1.334;
+  }
+}
+
+/* ---------- Scroll reveal ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    opacity: 0;
+    translate: 0 32px;
+    transition:
+      opacity 900ms var(--ease-out),
+      translate 900ms var(--ease-out);
+    transition-delay: calc(var(--reveal-delay, 0) * 1ms);
+  }
+
+  .js [data-reveal].is-visible {
+    opacity: 1;
+    translate: none;
   }
 }

@@ -1,0 +1,165 @@
+---
+/*
+  The chat prompt shown over feature images (Figma 77:120). It illustrates the product,
+  so it is not an input. The text types itself in when it scrolls into view.
+*/
+import addIcon from '../assets/home/add-circle.svg';
+import addIconSmall from '../assets/home/add-filled-sm.svg';
+import sendIcon from '../assets/home/send.svg';
+import sendIconSmall from '../assets/home/send-sm.svg';
+
+interface Props {
+  prompt: string;
+}
+
+const { prompt } = Astro.props;
+---
+
+<div class="pill" data-prompt-pill>
+  <span class="pill__add" aria-hidden="true">
+    <img class="pill__icon pill__icon--sm" src={addIconSmall.src} width="21" height="21" alt="" />
+    <span class="pill__icon pill__icon--lg">
+      <img src={addIcon.src} width="35" height="35" alt="" />
+    </span>
+  </span>
+  <p class="pill__text">
+    <span class="visually-hidden">Example prompt: </span><span data-prompt-text>{prompt}</span>
+  </p>
+  <span class="pill__send" aria-hidden="true">
+    <img class="pill__icon pill__icon--sm" src={sendIconSmall.src} width="24" height="24" alt="" />
+    <img class="pill__icon pill__icon--lg" src={sendIcon.src} width="40" height="40" alt="" />
+  </span>
+</div>
+
+<script>
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pills = document.querySelectorAll<HTMLElement>('[data-prompt-pill]');
+
+  if (!reduced) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          const text = entry.target.querySelector<HTMLElement>('[data-prompt-text]');
+          if (!text) continue;
+          const full = text.textContent ?? '';
+          // Hold the line height while typing, so the pill does not change size.
+          text.style.minHeight = `${text.offsetHeight}px`;
+          text.setAttribute('aria-hidden', 'true');
+          let index = 0;
+          text.textContent = '';
+          const step = () => {
+            index += 1;
+            text.textContent = full.slice(0, index);
+            if (index < full.length) window.setTimeout(step, 28);
+            else {
+              text.removeAttribute('aria-hidden');
+              entry.target.classList.add('is-sent');
+            }
+          };
+          window.setTimeout(step, 400);
+        }
+      },
+      { threshold: 0.6 },
+    );
+    pills.forEach((pill) => observer.observe(pill));
+  }
+</script>
+
+<style>
+  .pill {
+    position: absolute;
+    left: 50%;
+    top: calc(50% - 1px);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    width: min(326px, calc(100% - 32px));
+    padding: 6px;
+    translate: -50% -50%;
+    border-radius: 100px;
+    background: var(--color-white);
+    color: var(--color-ink);
+    box-shadow: 0 12px 30px -18px rgb(0 0 0 / 0.6);
+  }
+
+  .pill__add,
+  .pill__send {
+    flex: none;
+  }
+
+  .pill__icon--lg {
+    display: none;
+  }
+
+  .pill__text {
+    flex: 1;
+    min-width: 0;
+    font-size: 10px;
+    line-height: 18px;
+    letter-spacing: -0.02em;
+    text-align: center;
+  }
+
+  .pill__send {
+    transition: transform 500ms var(--ease-out);
+  }
+
+  .pill.is-sent .pill__send {
+    animation: nudge 600ms var(--ease-out);
+  }
+
+  @keyframes nudge {
+    40% {
+      transform: translateX(3px) rotate(-12deg);
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .pill {
+      width: min(440px, calc(100% - 48px));
+    }
+
+    .pill__text {
+      font-size: 12px;
+    }
+  }
+
+  /* Desktop: 552px pill, 40px icons, left-aligned text. */
+  @media (min-width: 1024px) {
+    .pill {
+      left: calc(50% + 0.5 * var(--s));
+      top: 50%;
+      gap: calc(15 * var(--s));
+      width: min(calc(552 * var(--s)), calc(100% - 32px));
+      padding: calc(4 * var(--s));
+    }
+
+    .pill__icon--sm {
+      display: none;
+    }
+
+    .pill__icon--lg {
+      display: block;
+      width: calc(40 * var(--s));
+      height: calc(40 * var(--s));
+    }
+
+    /* The circle sits 6.25% in from the 40px icon box. */
+    span.pill__icon--lg {
+      padding: 6.25%;
+    }
+
+    span.pill__icon--lg img {
+      width: 100%;
+      height: 100%;
+    }
+
+    .pill__text {
+      font-size: max(11px, calc(14 * var(--s)));
+      line-height: 1.43;
+      text-align: left;
+    }
+  }
+</style>

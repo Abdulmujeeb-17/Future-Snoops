@@ -1,0 +1,129 @@
+---
+// Closing call to action (Figma 103:89 desktop 1600x831, 107:409 mobile 390x480).
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import { links } from '../data/links';
+import tennisImage from '../assets/home/creator-tennis.png';
+---
+
+<section class="curious" aria-labelledby="curious-title">
+  <div class="curious__media" aria-hidden="true" data-parallax>
+    <Image src={tennisImage} alt="" widths={[600, 735]} sizes="100vw" format="webp" />
+  </div>
+
+  <h2 class="curious__title" id="curious-title" data-reveal>Stay Curious</h2>
+  <div class="curious__actions" data-reveal style="--reveal-delay:120">
+    <Button tone="lime" size="lg" href={links.runwayTrial}>Start Exploring with Runway — Free Trial</Button>
+    <Button size="lg" href={links.requestDemo}>Schedule a demo with our team</Button>
+  </div>
+</section>
+
+<script>
+  // Slow drift of the backdrop while the section crosses the viewport.
+  const media = document.querySelector<HTMLElement>('[data-parallax]');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (media && !reduced) {
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const rect = media.parentElement!.getBoundingClientRect();
+      const progress = (rect.top + rect.height / 2 - window.innerHeight / 2) / window.innerHeight;
+      media.style.setProperty('--shift', `${Math.max(-1, Math.min(1, progress)) * -6}%`);
+    };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    update();
+  }
+</script>
+
+<style>
+  .curious {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    min-height: 480px;
+    padding: 20px;
+    overflow: hidden;
+    isolation: isolate;
+    color: var(--color-white);
+  }
+
+  .curious__media {
+    position: absolute;
+    inset: -8% 0;
+    z-index: -1;
+    transform: translateY(var(--shift, 0));
+  }
+
+  .curious__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0.2);
+  }
+
+  .curious__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .curious__title {
+    font-family: var(--font-display);
+    font-size: 52px;
+    line-height: 66px;
+    text-align: center;
+  }
+
+  .curious__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .curious {
+      min-height: 600px;
+    }
+
+    .curious__title {
+      font-size: 88px;
+      line-height: 1;
+    }
+
+    .curious__actions {
+      width: 480px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .curious {
+      gap: calc(64 * var(--s));
+      min-height: calc(831 * var(--s));
+      padding: calc(100 * var(--s)) calc(10 * var(--s));
+    }
+
+    .curious__media :global(img) {
+      object-position: 50% 31%;
+    }
+
+    .curious__title {
+      font-size: calc(120 * var(--anton) * var(--s));
+      line-height: calc(100 * var(--s));
+    }
+
+    .curious__actions {
+      gap: calc(10 * var(--s));
+      width: calc(545 * var(--s));
+    }
+  }
+</style>
