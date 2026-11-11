@@ -169,12 +169,32 @@ const steps = [
     color: var(--color-ink);
   }
 
+  /*
+    The title is sized to the viewport: as large as fits both the width (inside the side
+    padding) and the height (clear of the fixed header), with 25px between lines.
+    "ENTERING A", the widest line, is 4.12em wide in Anton; capitals are 0.87em tall, so
+    the line box is set to the capital height and the 25px gap is the visible space.
+  */
+  .era__pin {
+    --era-pad: 20px;
+    --era-clear: 72px;
+    --era-gap: 25px;
+    container-type: inline-size;
+  }
+
   .era__title {
     font-family: var(--font-display);
-    font-size: 64px;
-    line-height: 72px;
+    font-size: min(
+      (100cqw - 2 * var(--era-pad)) / 4.12,
+      (100svh - 2 * var(--era-clear) - 2 * var(--era-gap)) / 2.61
+    );
+    line-height: 0.87;
     text-align: center;
     text-transform: uppercase;
+  }
+
+  .era__title span + span {
+    margin-top: var(--era-gap);
   }
 
   .era__title span {
@@ -279,9 +299,9 @@ const steps = [
       padding: 72px 32px 64px;
     }
 
-    .era__title {
-      font-size: 120px;
-      line-height: 1;
+    .era__pin {
+      --era-pad: 32px;
+      --era-clear: 96px;
     }
 
     .era__mission {
@@ -323,10 +343,9 @@ const steps = [
       padding: calc(100 * var(--s)) 0 calc(8 * var(--s));
     }
 
-    /* Sized so Anton matches the line widths of the file's 300px Vanguard. */
-    .era__title {
-      font-size: calc(253 * var(--s));
-      line-height: calc(300 * var(--s));
+    .era__pin {
+      --era-pad: 80px;
+      --era-clear: 120px;
     }
 
     .era__body {
