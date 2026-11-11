@@ -35,11 +35,13 @@ const steps = [
 ---
 
 <section class="era" aria-labelledby="era-title">
-  <h2 class="era__title" id="era-title">
-    <span data-reveal>We are</span>
-    <span data-reveal style="--reveal-delay:150">entering a</span>
-    <span data-reveal style="--reveal-delay:300">new era</span>
-  </h2>
+  <div class="era__pin" data-era-pin>
+    <h2 class="era__title" id="era-title" data-era-title>
+      <span>We are</span>
+      <span>entering a</span>
+      <span>new era</span>
+    </h2>
+  </div>
 
   <div class="era__body">
     <p class="era__mission" data-reveal>But our mission remains the same; to unleash human creativity.</p>
@@ -81,7 +83,84 @@ const steps = [
   </div>
 </section>
 
+<script>
+  /*
+    The title pins in place while the page scrolls past it, and the scroll drives a slow
+    fade-up of each line in turn: line two starts while line one is still fading in, then
+    line three. With reduced motion the title is simply shown.
+  */
+  const pin = document.querySelector<HTMLElement>('[data-era-pin]');
+  const title = pin?.querySelector<HTMLElement>('[data-era-title]');
+  const lines = title ? [...title.querySelectorAll<HTMLElement>('span')] : [];
+
+  if (pin && title && lines.length) {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    // Scroll progress window for each line; they overlap so each starts before the
+    // previous one has finished.
+    const windows: [number, number][] = [
+      [-0.35, 0.3],
+      [0.15, 0.65],
+      [0.5, 1],
+    ];
+    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+    let distance = 0;
+    let stickTop = 0;
+    let queued = false;
+
+    const render = () => {
+      queued = false;
+      if (!pin.classList.contains('is-pinned')) return;
+      const progress = (stickTop - pin.getBoundingClientRect().top) / distance;
+      lines.forEach((line, index) => {
+        const [start, end] = windows[index];
+        const t = easeOut(Math.min(1, Math.max(0, (progress - start) / (end - start))));
+        line.style.opacity = String(t);
+        line.style.transform = `translate3d(0, ${(1 - t) * 0.35}em, 0)`;
+      });
+    };
+
+    const queue = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(render);
+    };
+
+    const setup = () => {
+      const enable = !reduced.matches;
+      pin.classList.toggle('is-pinned', enable);
+      pin.style.height = '';
+      title.style.top = '';
+      lines.forEach((line) => {
+        line.style.opacity = '';
+        line.style.transform = '';
+      });
+      if (!enable) return;
+      // Hold the title for about one and a half screens of scrolling, centred on screen.
+      distance = window.innerHeight * 1.5;
+      stickTop = (window.innerHeight - title.offsetHeight) / 2;
+      title.style.top = `${stickTop}px`;
+      pin.style.height = `${title.offsetHeight + distance}px`;
+      render();
+    };
+
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', setup);
+    reduced.addEventListener('change', setup);
+    document.fonts.ready.then(setup);
+    setup();
+  }
+</script>
+
 <style>
+  .era__pin.is-pinned .era__title {
+    position: sticky;
+  }
+
+  .era__pin.is-pinned .era__title span {
+    opacity: 0;
+    will-change: opacity, transform;
+  }
+
   .era {
     display: flex;
     flex-direction: column;
