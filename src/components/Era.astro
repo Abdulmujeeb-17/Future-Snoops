@@ -35,7 +35,7 @@ const steps = [
 ---
 
 <section class="era" aria-labelledby="era-title">
-  <h2 class="era__title" id="era-title" data-reveal>
+  <h2 class="era__title" id="era-title">
     <span>We are</span>
     <span>entering a</span>
     <span>new era</span>
@@ -320,6 +320,44 @@ const steps = [
 
     .era__actions :global(.era__listen) {
       min-height: calc(92 * var(--s));
+    }
+  }
+
+  /*
+    Scroll effect on the title: the lines start offset in alternating directions and
+    faded, and slide into alignment as the heading scrolls up into view. Driven by the
+    scroll position (no script); browsers without scroll timelines show it static.
+  */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .era__title span {
+        animation: era-line linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 100%;
+      }
+
+      .era__title span:nth-child(1) {
+        --from: -12%;
+      }
+
+      .era__title span:nth-child(2) {
+        --from: 10%;
+      }
+
+      .era__title span:nth-child(3) {
+        --from: -8%;
+      }
+
+      @keyframes era-line {
+        from {
+          opacity: 0.12;
+          transform: translateX(var(--from));
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
     }
   }
 </style>
