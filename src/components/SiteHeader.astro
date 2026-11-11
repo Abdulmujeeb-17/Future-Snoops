@@ -1,6 +1,9 @@
 ---
 /*
-  Header over the hero: wordmark left, "Menu" right (Figma 72:211 / 72:212).
+  Header: wordmark left, "Menu" right (Figma 72:211 / 72:212). It stays fixed to the top
+  of the screen: plain white over the photo sections (marked data-header-dark) and the
+  open menu, and white with a difference blend elsewhere, so it inverts against whatever
+  it passes over (dark on the peach page, light over photos inside cards).
 
   The menu copies the motion of asake.framer.website (measured frame by frame):
   - open: a black panel drops from the top in 400ms (strong ease-in-out) while the page
@@ -29,6 +32,7 @@ const socials = [
 ---
 
 <header class="header" data-site-header>
+  <div class="bar">
   <a class="brand" href="/" aria-label="Future Snoops, home">Future Snoops</a>
 
   <button
@@ -41,6 +45,7 @@ const socials = [
     <span class="toggle__label toggle__label--open">Menu</span>
     <span class="toggle__label toggle__label--close" aria-hidden="true">Close</span>
   </button>
+  </div>
 
   <div class="menu" id="site-menu" data-menu hidden>
     <div class="menu__backdrop" data-menu-backdrop></div>
@@ -113,6 +118,28 @@ const socials = [
       }
     });
 
+    // Switch the header to dark text whenever it is not over a photo section.
+    const darkSections = [...document.querySelectorAll<HTMLElement>('[data-header-dark]')];
+    let queued = false;
+    const updateTone = () => {
+      queued = false;
+      const probe = toggle.getBoundingClientRect();
+      const y = probe.top + probe.height / 2;
+      const overDark = darkSections.some((section) => {
+        const rect = section.getBoundingClientRect();
+        return rect.top <= y && rect.bottom >= y;
+      });
+      header.toggleAttribute('data-on-light', !overDark);
+    };
+    const queueTone = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(updateTone);
+    };
+    window.addEventListener('scroll', queueTone, { passive: true });
+    window.addEventListener('resize', queueTone);
+    updateTone();
+
     toggle.addEventListener('click', () => setOpen(!isOpen()));
     backdrop.addEventListener('click', () => setOpen(false));
 
@@ -144,20 +171,38 @@ const socials = [
     --menu-ease: cubic-bezier(0.76, 0, 0.24, 1);
     --menu-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     --menu-grey: #6f6f6f;
-    position: absolute;
+  }
+
+  /*
+    The bar and the menu are separate fixed layers: a blend mode only mixes with what is
+    behind its own layer, so the bar must not contain the menu panel.
+  */
+  .bar {
+    position: fixed;
     inset: 0 0 auto;
-    z-index: 20;
+    z-index: 50;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 24px 16px 0 16px;
     color: var(--color-white);
+    /* The bar spans the page; only its controls take clicks. */
+    pointer-events: none;
+  }
+
+  .header[data-on-light] .bar {
+    mix-blend-mode: difference;
+  }
+
+  .brand,
+  .toggle,
+  .menu {
+    pointer-events: auto;
   }
 
   .brand,
   .toggle {
     position: relative;
-    z-index: 3;
     font-family: var(--font-display);
     white-space: nowrap;
   }
@@ -226,7 +271,7 @@ const socials = [
   .menu {
     position: fixed;
     inset: 0;
-    z-index: 2;
+    z-index: 49;
   }
 
   .menu__backdrop {
@@ -332,7 +377,7 @@ const socials = [
   }
 
   @media (min-width: 768px) {
-    .header {
+    .bar {
       padding: 32px 32px 0;
     }
 
@@ -366,8 +411,8 @@ const socials = [
   }
 
   @media (min-width: 1024px) {
-    .header {
-      padding: calc(46 * var(--s)) calc(48 * var(--s)) 0;
+    .bar {
+      padding: calc(46 * var(--s)) 80px 0;
     }
 
     .brand,
@@ -377,7 +422,7 @@ const socials = [
     }
 
     .menu__panel {
-      padding: calc(130 * var(--s)) calc(48 * var(--s)) calc(84 * var(--s));
+      padding: calc(130 * var(--s)) 80px calc(84 * var(--s));
     }
 
     .menu__aside {

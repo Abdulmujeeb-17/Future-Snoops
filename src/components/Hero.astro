@@ -1,15 +1,14 @@
 ---
 /*
-  Hero (Figma 67:118 desktop 1600x1049, 107:224 mobile 390x595).
-  The photo frame is larger than the hero and offset like the Figma frame, so the
-  crop matches: desktop 1600x1724 at y-46, mobile 650x700 at x-130.
+  Hero (Figma 67:118 desktop 1600x1049, 107:224 mobile 390x595), stretched to fill the
+  viewport. The photo covers the hero, positioned to keep the Figma crop of the face.
+  Text positions are the Figma positions as percentages of the frame height.
 */
 import { Image } from 'astro:assets';
-import SiteHeader from './SiteHeader.astro';
 import heroImage from '../assets/home/hero.png';
 ---
 
-<section class="hero" aria-labelledby="hero-title">
+<section class="hero" aria-labelledby="hero-title" data-header-dark>
   <div class="hero__media" aria-hidden="true">
     <Image
       class="hero__image"
@@ -24,8 +23,6 @@ import heroImage from '../assets/home/hero.png';
     />
   </div>
 
-  <SiteHeader />
-
   <p class="hero__statement hero__statement--left">The New Future Snoops Experience</p>
   <p class="hero__statement hero__statement--right">A conversational, AI-powered intelligence platform</p>
 
@@ -37,7 +34,9 @@ import heroImage from '../assets/home/hero.png';
 <style>
   .hero {
     position: relative;
-    height: 595px;
+    height: 100vh;
+    height: 100svh;
+    min-height: 560px;
     overflow: hidden;
     background: var(--color-signal);
     color: var(--color-white);
@@ -45,10 +44,7 @@ import heroImage from '../assets/home/hero.png';
 
   .hero__media {
     position: absolute;
-    left: calc(50% - 325px);
-    top: 0;
-    width: 650px;
-    height: 700px;
+    inset: 0;
     background: #ffa582;
   }
 
@@ -63,6 +59,7 @@ import heroImage from '../assets/home/hero.png';
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: 50% 35%;
   }
 
   .hero__statement {
@@ -103,14 +100,7 @@ import heroImage from '../assets/home/hero.png';
   /* Tablet: the mobile composition, with the photo widened to the viewport. */
   @media (min-width: 768px) {
     .hero {
-      height: min(100svh, 860px);
       min-height: 640px;
-    }
-
-    .hero__media {
-      left: 0;
-      width: 100%;
-      height: 100%;
     }
 
     .hero__media::after {
@@ -143,16 +133,19 @@ import heroImage from '../assets/home/hero.png';
     }
   }
 
-  /* Desktop: the 1600x1049 frame, scaled. */
+  /*
+    Desktop: 80px side padding. The statements sit on it and the "Future Snoops" title
+    spans the full width between it.
+  */
   @media (min-width: 1024px) {
     .hero {
-      height: calc(1049 * var(--s));
-      min-height: 0;
+      --hero-pad: 80px;
+      min-height: calc(640 * var(--s));
+      container-type: inline-size;
     }
 
-    .hero__media {
-      top: calc(-46 * var(--s));
-      height: calc(1724 * var(--s));
+    .hero__media :global(.hero__image) {
+      object-position: 50% 38%;
     }
 
     .hero__media::after {
@@ -165,30 +158,23 @@ import heroImage from '../assets/home/hero.png';
     }
 
     .hero__statement--left {
-      left: calc(68 * var(--s));
-      top: calc(286 * var(--s));
+      left: var(--hero-pad);
+      top: 27.26%;
       width: calc(436 * var(--s));
     }
 
     .hero__statement--right {
-      right: calc(58 * var(--s));
-      top: calc(452 * var(--s));
+      right: var(--hero-pad);
+      top: 43.09%;
       width: calc(492 * var(--s));
     }
 
-    /* Anton is wider than the file's Vanguard; this size spans the same 1318px. */
+    /* "Future Snoops" in Anton is 5.70em wide; this fills the space between the paddings. */
     .hero__title {
-      inset-inline: 0;
+      inset-inline: var(--hero-pad);
       bottom: calc(24 * var(--s));
-      font-size: calc(231 * var(--s));
+      font-size: calc((100cqw - 2 * var(--hero-pad)) / 5.7);
       line-height: 1;
-    }
-  }
-
-  @media (min-width: 1921px) {
-    .hero__media {
-      left: calc(50% - var(--frame) / 2);
-      width: var(--frame);
     }
   }
 

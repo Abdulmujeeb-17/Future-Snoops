@@ -255,7 +255,7 @@ const marqueeItems = Array.from({ length: 7 });
     }
   }
 
-  /* Desktop: two 720px columns 80px apart; photo 584, card 423, 15px between. */
+  /* Desktop: two columns 20px apart; photo 584, card 423, 15px between. */
   @media (min-width: 1024px) {
     .gift {
       gap: calc(80 * var(--s));
@@ -266,7 +266,7 @@ const marqueeItems = Array.from({ length: 7 });
 
     .gift__grid {
       flex-direction: row;
-      gap: calc(80 * var(--s));
+      gap: 20px;
     }
 
     .gift__item {

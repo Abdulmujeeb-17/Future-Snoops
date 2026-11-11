@@ -1,8 +1,10 @@
 ---
 /*
-  Principles (Figma 98:22 desktop, 107:386 mobile). On desktop the cards start 500px in
-  and run past the right edge, so the row scrolls sideways (drag, wheel or keyboard).
-  On mobile they stack.
+  Principles (Figma 98:22 desktop, 107:386 mobile). From tablet up the cards start 500px
+  in and the first three fill the row. The section then pins in place and vertical
+  scrolling slides the row sideways until the last card is in view, after which the page
+  scrolls on. With reduced motion the row scrolls sideways natively instead. On mobile
+  the cards stack.
 */
 import { Image } from 'astro:assets';
 import roiImage from '../assets/home/principle-roi.png';
@@ -55,7 +57,8 @@ const principles = [
 ];
 ---
 
-<section class="principles" aria-labelledby="principles-title">
+<section class="principles" aria-labelledby="principles-title" data-principles>
+  <div class="principles__pin" data-principles-pin>
   <h2 class="principles__title" id="principles-title" data-reveal>
     As we shape what comes next from Future Snoops, we will be guided by these principles.
   </h2>
@@ -83,19 +86,96 @@ const principles = [
       }
     </ul>
   </div>
+  </div>
 </section>
 
 <script>
-  // Drag to scroll with a mouse; touch and trackpads scroll natively.
-  const track = document.querySelector<HTMLElement>('[data-principles-track]');
+  const section = document.querySelector<HTMLElement>('[data-principles]');
+  const pin = section?.querySelector<HTMLElement>('[data-principles-pin]');
+  const track = section?.querySelector<HTMLElement>('[data-principles-track]');
+  const list = track?.querySelector<HTMLElement>('.principles__list');
 
-  if (track) {
+  // Pinned horizontal scroll: vertical scroll distance maps 1:1 to sideways travel.
+  if (section && pin && track && list) {
+    const wide = window.matchMedia('(min-width: 768px)');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const title = section.querySelector<HTMLElement>('.principles__title')!;
+    const header = document.querySelector<HTMLElement>('[data-menu-toggle]');
+    let distance = 0;
+    let stickTop = 0;
+    let startOffset = 0;
+    let target = 0;
+    let current = 0;
+    let frame = 0;
+
+    const render = () => {
+      // Ease towards the scroll position for a smooth glide.
+      current += (target - current) * 0.14;
+      if (Math.abs(target - current) < 0.3) current = target;
+      list.style.transform = `translate3d(${-current}px, 0, 0)`;
+      frame = current === target ? 0 : requestAnimationFrame(render);
+    };
+
+    const update = () => {
+      if (!section.classList.contains('is-pinned')) return;
+      const travelled = stickTop - (section.getBoundingClientRect().top + startOffset);
+      target = Math.min(distance, Math.max(0, travelled));
+      if (!frame) frame = requestAnimationFrame(render);
+    };
+
+    const setup = () => {
+      const enable = wide.matches && !reduced.matches;
+      section.classList.toggle('is-pinned', enable);
+      section.classList.remove('is-pinned-row');
+      list.style.transform = '';
+      section.style.height = '';
+      pin.style.top = '';
+      pin.style.height = '';
+      track.style.top = '';
+      if (!enable) return;
+
+      distance = Math.max(0, track.scrollWidth - track.clientWidth);
+      const pinHeight = pin.offsetHeight;
+      section.style.height = `${pinHeight + distance}px`;
+
+      if (pinHeight <= window.innerHeight) {
+        // Heading and cards fit on screen: hold the whole section.
+        stickTop = 0;
+        startOffset = 0;
+        pin.style.top = '0px';
+      } else {
+        // Too tall to hold whole: hold the card row, centred below the header, and let
+        // the heading scroll away above it.
+        section.classList.add('is-pinned-row');
+        pin.style.height = '100%';
+        const clearance = header ? header.getBoundingClientRect().bottom + 16 : 0;
+        stickTop = Math.max(clearance, (window.innerHeight - track.offsetHeight) / 2);
+        track.style.top = `${stickTop}px`;
+        startOffset = title.offsetTop + title.offsetHeight + parseFloat(getComputedStyle(pin).rowGap || '0');
+      }
+      current = target = 0;
+      update();
+      current = target;
+      list.style.transform = `translate3d(${-current}px, 0, 0)`;
+    };
+
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', setup);
+    wide.addEventListener('change', setup);
+    reduced.addEventListener('change', setup);
+    document.fonts.ready.then(setup);
+    setup();
+  }
+
+  // Drag to scroll with a mouse when the row is not pinned (reduced motion).
+  if (section && track) {
     let startX = 0;
     let startScroll = 0;
     let dragging = false;
     let moved = false;
 
     track.addEventListener('pointerdown', (event) => {
+      if (section.classList.contains('is-pinned')) return;
       if (event.pointerType !== 'mouse' || track.scrollWidth <= track.clientWidth) return;
       dragging = true;
       moved = false;
@@ -125,7 +205,7 @@ const principles = [
 </script>
 
 <style>
-  .principles {
+  .principles__pin {
     display: flex;
     flex-direction: column;
     gap: 28px;
@@ -217,7 +297,7 @@ const principles = [
 
   /* Tablet and up: one sideways-scrolling row. */
   @media (min-width: 768px) {
-    .principles {
+    .principles__pin {
       gap: 48px;
       padding: 72px 0 64px;
     }
@@ -239,6 +319,35 @@ const principles = [
 
     .principles__track::-webkit-scrollbar {
       display: none;
+    }
+
+    /* Pinned: the row is moved by the scroll script instead of scrolling itself. */
+    /* Pinned: room above the heading for the fixed header, and a tighter bottom. */
+    .principles.is-pinned .principles__pin {
+      position: sticky;
+      padding-top: 104px;
+      padding-bottom: 40px;
+    }
+
+    .principles.is-pinned {
+      position: relative;
+    }
+
+    .principles.is-pinned-row .principles__pin {
+      position: relative;
+    }
+
+    .principles.is-pinned-row .principles__track {
+      position: sticky;
+    }
+
+    .principles.is-pinned .principles__track {
+      overflow: hidden;
+      cursor: auto;
+    }
+
+    .principles.is-pinned .principles__list {
+      will-change: transform;
     }
 
     .principles__track.is-dragging {
@@ -268,15 +377,16 @@ const principles = [
     of the 1600 frame.
   */
   @media (min-width: 1024px) {
-    .principles {
+    .principles__pin {
       gap: calc(80 * var(--s));
       padding: calc(100 * var(--s)) 0;
     }
 
+    /* Aligned to the hero's 80px side padding. */
     .principles__title {
-      width: calc(1458 * var(--s));
-      margin-inline: auto;
-      padding: 0;
+      width: auto;
+      margin-inline: 0;
+      padding: 0 80px;
       /* Slightly under the shared Anton factor, to keep the file's two-line wrap. */
       font-size: calc(76 * var(--s));
       line-height: calc(100 * var(--s));
@@ -284,6 +394,11 @@ const principles = [
 
     .principles__track {
       scroll-padding-inline: calc(510 * var(--s));
+    }
+
+    .principles.is-pinned .principles__pin {
+      padding-top: calc(120 * var(--s));
+      padding-bottom: calc(36 * var(--s));
     }
 
     .principles__list {
