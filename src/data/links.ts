@@ -6,6 +6,7 @@ const site = 'https://www.futuresnoops.com/en';
 export const links = {
   home: site,
   requestDemo: site,
+  login: 'https://my.futuresnoops.com/login.aspx',
   runwayTrial: site,
   colorTrial: 'https://fs.futuresnoops.com/try-out-color-w',
   events: `${site}/events`,

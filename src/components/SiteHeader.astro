@@ -11,7 +11,14 @@
     45ms apart, over 650ms with a soft ease-out.
   - close: the panel lifts away in 400ms while the links fade out upwards in turn.
   Links are grey and turn white on hover; social links sit top-left, a tagline bottom-left.
+
+  "Request a Demo" and "Log in" (destinations from the live site's navbar) sit beside
+  Menu from tablet up, on their own unblended layer so their colours stay true. On phones
+  they move into the open menu.
 */
+import Button from './Button.astro';
+import { links } from '../data/links';
+
 const site = 'https://www.futuresnoops.com/en';
 
 const menuItems = [
@@ -47,6 +54,13 @@ const socials = [
   </button>
   </div>
 
+  <div class="actions-bar">
+    <div class="actions">
+      <a class="nav-btn nav-btn--lime" href={links.requestDemo} target="_blank" rel="noopener noreferrer">Request a Demo</a>
+      <a class="nav-btn nav-btn--white" href={links.login} target="_blank" rel="noopener noreferrer">Log in</a>
+    </div>
+  </div>
+
   <div class="menu" id="site-menu" data-menu hidden>
     <div class="menu__backdrop" data-menu-backdrop></div>
     <div class="menu__panel" data-menu-panel>
@@ -63,6 +77,11 @@ const socials = [
           }
         </ul>
         <p class="menu__tagline">A conversational, AI-powered intelligence platform built for creators.</p>
+      </div>
+
+      <div class="menu__ctas">
+        <Button tone="lime" href={links.requestDemo}>Request a Demo</Button>
+        <Button href={links.login}>Log in</Button>
       </div>
 
       <nav class="menu__nav" aria-label="Primary">
@@ -168,6 +187,8 @@ const socials = [
 
 <style>
   .header {
+    --toggle-size: 22px;
+    --row-h: 32px;
     --menu-ease: cubic-bezier(0.76, 0, 0.24, 1);
     --menu-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     --menu-grey: #6f6f6f;
@@ -196,8 +217,105 @@ const socials = [
 
   .brand,
   .toggle,
-  .menu {
+  .menu,
+  .actions {
     pointer-events: auto;
+  }
+
+  /* ---------- Request a Demo / Log in ---------- */
+
+  .actions-bar {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    display: none;
+    justify-content: flex-end;
+    padding: 24px 16px 0;
+    pointer-events: none;
+    transition:
+      opacity 300ms ease,
+      visibility 300ms;
+  }
+
+  /* Hidden while the menu is open; the panel has its own copy on phones. */
+  .header[data-open] .actions-bar {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--row-h);
+    /* Clear the Menu/Close label, which has a fixed width. */
+    margin-right: calc(var(--toggle-size) * 2.4 + 24px);
+  }
+
+  .nav-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 18px;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+    font-size: 15px;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    transition:
+      transform 400ms var(--ease-out),
+      box-shadow 400ms var(--ease-out);
+  }
+
+  .nav-btn--lime {
+    background: var(--color-lime);
+    color: var(--color-ink-soft);
+  }
+
+  .nav-btn--white {
+    background: var(--color-white);
+  }
+
+  .nav-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgb(0 0 0 / 0.08);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 450ms var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .nav-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px -14px rgb(0 0 0 / 0.55);
+    }
+
+    .nav-btn:hover::before {
+      transform: scaleY(1);
+    }
+  }
+
+  .menu__ctas {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    order: 1;
+    transition: opacity 400ms var(--menu-ease-out);
+  }
+
+  .header:not([data-open]) .menu__ctas {
+    opacity: 0;
+  }
+
+  .header[data-open] .menu__ctas {
+    transition-delay: 450ms;
   }
 
   .brand,
@@ -214,6 +332,8 @@ const socials = [
 
   .toggle {
     display: grid;
+    justify-items: end;
+    width: calc(var(--toggle-size) * 2.4);
     padding: 0;
     border: 0;
     background: none;
@@ -377,8 +497,22 @@ const socials = [
   }
 
   @media (min-width: 768px) {
-    .bar {
+    .header {
+      --toggle-size: 30px;
+      --row-h: 44.8px;
+    }
+
+    .bar,
+    .actions-bar {
       padding: 32px 32px 0;
+    }
+
+    .actions-bar {
+      display: flex;
+    }
+
+    .menu__ctas {
+      display: none;
     }
 
     .brand {
@@ -411,8 +545,24 @@ const socials = [
   }
 
   @media (min-width: 1024px) {
-    .bar {
+    .header {
+      --toggle-size: calc(40 * var(--anton) * var(--s));
+      --row-h: calc(58 * var(--s));
+    }
+
+    .bar,
+    .actions-bar {
       padding: calc(46 * var(--s)) 80px 0;
+    }
+
+    .actions {
+      gap: calc(12 * var(--s));
+    }
+
+    .nav-btn {
+      height: max(38px, calc(48 * var(--s)));
+      padding: 0 calc(22 * var(--s));
+      font-size: max(13px, calc(17 * var(--s)));
     }
 
     .brand,
